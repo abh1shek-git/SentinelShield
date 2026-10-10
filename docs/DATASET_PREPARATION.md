@@ -8,18 +8,32 @@ Those values describe application or traffic types. They do not identify DDoS ev
 
 The file also contains source and destination IP fields. It is excluded from Git by its exact filename pattern in `.gitignore`; keep large or identifying source data out of commits.
 
-## Recommended labeled source for DDoS evaluation
+## Labeled flow files
 
 The Canadian Institute for Cybersecurity's [CIC-DDoS2019 dataset page](https://www.unb.ca/cic/datasets/ddos-2019.html) describes benign traffic and multiple labeled DDoS attack types, with both flow CSVs and packet captures. The page also requires citing the dataset and its paper when using or redistributing it. This is a closer fit for SentinelShield's evaluation goal than application-type labels.
 
-Before using it, select a manageable subset and record the source files, capture day, labels, and any filtering. Keep source archives local and ignored by Git. Prefer processing in chunks or streaming; do not load all CSVs into a single in-memory dataframe.
+The supplied CIC-DDoS2019, CIC-IDS2017, and mirrored CSE-CIC-IDS2018 flow CSVs have been evaluated as a separate flow-model experiment. See [ML evaluation](ML_EVALUATION.md) for the measured cross-dataset failures. Flow rows cannot directly train SentinelShield's 21-feature live packet-window model.
+
+## Packet-window preparation from small PCAP samples
+
+The [LUCID DDoS research repository](https://github.com/doriguzzi/lucid-ddos/tree/master/sample-dataset) provides five small CIC-DDoS2019 PCAP excerpts: one labeled benign and four named for attack types. [CIC-DDoS2019](https://www.unb.ca/cic/datasets/ddos-2019.html) is the original dataset; cite the dataset authors when using these samples. The five local PCAPs are kept under `data/raw/`, which Git ignores.
+
+Run the converter from the repository root:
+
+```powershell
+.\.venv\Scripts\python.exe -m sentinelshield.evaluation.prepare_pcap_windows --capture-dir data/raw --output-csv data/processed/lucid-windows.csv --audit results/lucid-windows-audit.json
+```
+
+It uses the same `read_pcap` and `aggregate_windows` functions as SentinelShield's offline/live processing path, so the output CSV has the exact 21 model feature columns, plus a file-level label, capture ID, and window timing. The derived CSV remains local; [the small audit](../results/lucid-windows-audit.json) records hashes, counts, and time coverage without retaining IPs or payloads.
+
+At five-second windows, these samples yielded **567 nonempty windows**: 247 benign, 1 DNS, 1 SYN flood, 159 UDP lag, and 159 WebDDoS. The UDP lag sample has a roughly 28-day gap between portions of its packet timestamps. File-level attack names are coarse labels and may not describe every packet or window. These excerpts cannot support an independent model score: there is only one benign capture, and two attack captures provide just one window each. Do not use a random window split to claim DDoS accuracy on this derived CSV.
 
 ## Preparation rules
 
 1. Preserve the original labels and source filenames in a local manifest. Make any mapping into SentinelShield labels explicit and reviewable.
-2. Use flow-level data only when its fields can be mapped consistently to the current feature schema. Do not infer packet flags or timing details that a flow file does not contain.
-3. For window-level training, group flows by timestamp into fixed windows and define the target rule in advance. For example, a window containing any attack-labeled flow could be assigned an attack label, but this changes the evaluation question and must be reported.
-4. Split by capture/day or another independent group before fitting. The current trainer only supports a stratified random row split, so it cannot yet produce leakage-resistant evaluation for correlated windows.
+2. Use flow-level data only in its separate flow-model schema. Do not infer packet flags or timing details that a flow file does not contain.
+3. For window-level training, use packet captures with explicit capture or time-range labels. Document how mixed windows are labeled or excluded.
+4. Split by independent capture/day before fitting. The current packet-window trainer only supports a stratified random row split, so it cannot yet produce leakage-resistant evaluation for correlated windows.
 5. Keep the Unicauca application categories separate from DDoS attack labels. They may later help describe benign traffic diversity, but they cannot substitute for labeled attack examples.
 
-No real-world metrics have been produced from the local file. The next code step is a streaming adapter for the selected attack-labeled source, after confirming which source files are available and which labels/feature fields they contain.
+The next data requirement is more independently collected benign and attack captures with precise label intervals. The five excerpts establish that the packet-window extraction path works on real PCAPs; they do not establish detection performance.

@@ -111,6 +111,11 @@ def train_classifier(
     n_estimators: int = 200,
 ) -> TrainingResult:
     """Train on labeled rows and evaluate once on a stratified holdout split."""
+    if "capture_id" in dataset.columns:
+        raise ValueError(
+            "Capture-grouped rows require capture-aware evaluation; "
+            "the random-row trainer cannot produce an independent score"
+        )
     required = {*FEATURE_COLUMNS, LABEL_COLUMN}
     missing = sorted(required - set(dataset.columns))
     if missing:
