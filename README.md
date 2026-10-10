@@ -1,6 +1,8 @@
 # SentinelShield
 
-SentinelShield is a student project exploring cautious, flow-based detection of unusual network traffic. It is being built incrementally; this repository currently contains an initial packet-printing script and an experimental live traffic counter.
+SentinelShield is a student project exploring cautious detection of unusual network traffic. It is being built incrementally and now includes packet-window processing, explainable rules, a dashboard, and experimental ML evaluation.
+
+**New to the project?** Follow [Start here](START_HERE.md) for a short dashboard demonstration and a plain-English explanation of the results.
 
 ## Current status
 
