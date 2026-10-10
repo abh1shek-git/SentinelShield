@@ -55,6 +55,18 @@ The model trains on all valid CIC-DDoS2019 rows and is evaluated only on the sep
 
 On this supplied copy, 34 non-finite CIC-IDS2017 rows were excluded, leaving 225,711 evaluation flows. The measured confusion matrix (rows: actual benign, DDoS; columns: predicted benign, DDoS) was `[[73445, 24241], [81433, 46592]]`. DDoS recall was **36.4%**, DDoS precision **65.8%**, and the benign false-alarm rate **24.8%**. Accuracy was **53.2%**, below the **56.7%** of an always-DDoS reference on this attack-heavy evaluation file; balanced accuracy was **55.8%** versus that reference's **50%**. This model misses too many attacks and raises too many false alarms for live use. It is an initial measure of cross-dataset transfer, not a claim of current-network performance. The external file was not used to tune the model.
 
+## Why the flow baseline transfers poorly
+
+The distribution diagnostic samples 20,000 flows per class from each dataset with seed 42. It reports per-feature Kolmogorov-Smirnov distances (0 means matching empirical distributions; 1 means no overlap), medians, and the trained model's impurity-based feature importances:
+
+```powershell
+.\.venv\Scripts\python.exe -m sentinelshield.evaluation.flow_shift --train-csv cicddos2019_dataset.csv --eval-csv Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv --model models/cic-flow-baseline.joblib --report results/flow-shift.json
+```
+
+For attack flows, median forward bytes are **2,064** in the 2019 file versus **26** in the 2017 file (KS distance **0.87**). Median forward packet length is **440** versus **7** (KS distance **0.83**). Forward packet length is also the model's highest-importance feature. These differences are consistent with the failed transfer, although impurity importance and distribution differences do not prove a single cause. Benign traffic differs too: median flow inter-arrival time is **7,009.5** versus **56,179** in the source units (KS distance **0.30**). See [the full diagnostic](../results/flow-shift.json).
+
+This inspection uses the 2017 file to guide future work, so it is no longer an untouched final benchmark for model changes. A future improved model needs another independent capture for final evaluation. Until then, do not deploy this flow model or present its score as live DDoS detection performance.
+
 ## Before reporting a real-data result
 
 Keep a record of the capture source, collection period, environment, label definitions, and exclusions. Have labels assigned independently of this model's predictions. Partition by capture, scenario, or time before training so adjacent windows from the same trace cannot land in both sets. The packet-window training CLI supports only a stratified random row split; use its metrics as a first-stage check and do not describe them as leakage-resistant research results. The separate flow baseline uses one training dataset and one external evaluation dataset. Report per-class errors and false alarms alongside aggregate scores when extending the evaluation.

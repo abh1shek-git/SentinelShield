@@ -1,0 +1,362 @@
+{
+  "kind": "flow_dataset_shift_diagnostic",
+  "random_state": 42,
+  "sample_per_class": 20000,
+  "train_file": "cicddos2019_dataset.csv",
+  "train_sha256": "97af3b16e45f5309a6492cc16d947a74fdc135267f03756b8cea2eb13f4b2379",
+  "eval_file": "Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv",
+  "eval_sha256": "6ff1580f5f81c0ae28a26f7631721018577f5f7c5e0feac28b795fcfe7b411ee",
+  "model_feature_importance": [
+    {
+      "feature": "fwd_packet_length_mean",
+      "importance": 0.21669898796460146
+    },
+    {
+      "feature": "packet_length_mean",
+      "importance": 0.1375036798927159
+    },
+    {
+      "feature": "bwd_packets",
+      "importance": 0.08581381355959797
+    },
+    {
+      "feature": "fwd_packet_length_max",
+      "importance": 0.08293678387650714
+    },
+    {
+      "feature": "fwd_bytes",
+      "importance": 0.07313440307979331
+    },
+    {
+      "feature": "bwd_bytes",
+      "importance": 0.0520957333435478
+    },
+    {
+      "feature": "bwd_packet_length_max",
+      "importance": 0.045735553098299665
+    },
+    {
+      "feature": "flow_iat_std",
+      "importance": 0.0427324688714381
+    },
+    {
+      "feature": "flow_iat_mean",
+      "importance": 0.04260297070282651
+    },
+    {
+      "feature": "ack_flag_count",
+      "importance": 0.03971813695514856
+    },
+    {
+      "feature": "flow_packets_per_second",
+      "importance": 0.03816817181585356
+    },
+    {
+      "feature": "fwd_packets",
+      "importance": 0.03252390901993808
+    },
+    {
+      "feature": "bwd_packet_length_mean",
+      "importance": 0.026169101741618173
+    },
+    {
+      "feature": "flow_bytes_per_second",
+      "importance": 0.025225141760853175
+    },
+    {
+      "feature": "flow_duration",
+      "importance": 0.022377681832513895
+    },
+    {
+      "feature": "packet_length_std",
+      "importance": 0.014674998493322235
+    },
+    {
+      "feature": "bwd_packet_length_std",
+      "importance": 0.008225957881545043
+    },
+    {
+      "feature": "fwd_packet_length_std",
+      "importance": 0.006885490926080459
+    },
+    {
+      "feature": "rst_flag_count",
+      "importance": 0.006774156523865425
+    },
+    {
+      "feature": "syn_flag_count",
+      "importance": 2.8586599335291365e-06
+    },
+    {
+      "feature": "fin_flag_count",
+      "importance": 0.0
+    }
+  ],
+  "comparisons": {
+    "Benign": {
+      "train_sample_rows": 20000,
+      "eval_sample_rows": 20000,
+      "features_by_shift": [
+        {
+          "feature": "flow_iat_mean",
+          "ks_distance": 0.30000000000000004,
+          "train_median": 7009.5,
+          "eval_median": 56179.0
+        },
+        {
+          "feature": "flow_packets_per_second",
+          "ks_distance": 0.29345,
+          "train_median": 189.7623291015625,
+          "eval_median": 28.5865421295166
+        },
+        {
+          "feature": "flow_duration",
+          "ks_distance": 0.26265000000000005,
+          "train_median": 21492.0,
+          "eval_median": 164204.0
+        },
+        {
+          "feature": "ack_flag_count",
+          "ks_distance": 0.24444999999999995,
+          "train_median": 0.0,
+          "eval_median": 0.0
+        },
+        {
+          "feature": "flow_iat_std",
+          "ks_distance": 0.24365000000000003,
+          "train_median": 12068.4970703125,
+          "eval_median": 34545.3359375
+        },
+        {
+          "feature": "bwd_bytes",
+          "ks_distance": 0.24330000000000002,
+          "train_median": 96.0,
+          "eval_median": 62.0
+        },
+        {
+          "feature": "bwd_packet_length_max",
+          "ks_distance": 0.22934999999999997,
+          "train_median": 47.0,
+          "eval_median": 20.0
+        },
+        {
+          "feature": "bwd_packet_length_mean",
+          "ks_distance": 0.22934999999999997,
+          "train_median": 46.0,
+          "eval_median": 13.0
+        },
+        {
+          "feature": "packet_length_std",
+          "ks_distance": 0.2097,
+          "train_median": 15.336231231689453,
+          "eval_median": 31.767908096313477
+        },
+        {
+          "feature": "fwd_packet_length_mean",
+          "ks_distance": 0.2052,
+          "train_median": 31.0,
+          "eval_median": 37.0
+        },
+        {
+          "feature": "packet_length_mean",
+          "ks_distance": 0.20484999999999998,
+          "train_median": 40.93333435058594,
+          "eval_median": 60.66666793823242
+        },
+        {
+          "feature": "fwd_packet_length_max",
+          "ks_distance": 0.2007,
+          "train_median": 35.0,
+          "eval_median": 41.0
+        },
+        {
+          "feature": "fwd_bytes",
+          "ks_distance": 0.19820000000000004,
+          "train_median": 70.0,
+          "eval_median": 70.0
+        },
+        {
+          "feature": "bwd_packets",
+          "ks_distance": 0.1894,
+          "train_median": 2.0,
+          "eval_median": 2.0
+        },
+        {
+          "feature": "flow_bytes_per_second",
+          "ks_distance": 0.17175,
+          "train_median": 5524.5166015625,
+          "eval_median": 2368.15576171875
+        },
+        {
+          "feature": "fwd_packet_length_std",
+          "ks_distance": 0.1462000000000001,
+          "train_median": 0.0,
+          "eval_median": 0.0
+        },
+        {
+          "feature": "bwd_packet_length_std",
+          "ks_distance": 0.14280000000000004,
+          "train_median": 0.0,
+          "eval_median": 0.0
+        },
+        {
+          "feature": "fwd_packets",
+          "ks_distance": 0.13065,
+          "train_median": 2.0,
+          "eval_median": 2.0
+        },
+        {
+          "feature": "rst_flag_count",
+          "ks_distance": 0.11640000000000006,
+          "train_median": 0.0,
+          "eval_median": 0.0
+        },
+        {
+          "feature": "syn_flag_count",
+          "ks_distance": 0.07699999999999996,
+          "train_median": 0.0,
+          "eval_median": 0.0
+        },
+        {
+          "feature": "fin_flag_count",
+          "ks_distance": 0.005850000000000022,
+          "train_median": 0.0,
+          "eval_median": 0.0
+        }
+      ]
+    },
+    "DDoS": {
+      "train_sample_rows": 20000,
+      "eval_sample_rows": 20000,
+      "features_by_shift": [
+        {
+          "feature": "fwd_bytes",
+          "ks_distance": 0.8673500000000001,
+          "train_median": 2064.0,
+          "eval_median": 26.0
+        },
+        {
+          "feature": "fwd_packet_length_mean",
+          "ks_distance": 0.83325,
+          "train_median": 440.0,
+          "eval_median": 7.0
+        },
+        {
+          "feature": "fwd_packet_length_max",
+          "ks_distance": 0.8331999999999999,
+          "train_median": 440.0,
+          "eval_median": 20.0
+        },
+        {
+          "feature": "bwd_packet_length_max",
+          "ks_distance": 0.63235,
+          "train_median": 0.0,
+          "eval_median": 4380.0
+        },
+        {
+          "feature": "bwd_packet_length_mean",
+          "ks_distance": 0.63235,
+          "train_median": 0.0,
+          "eval_median": 1934.5
+        },
+        {
+          "feature": "packet_length_std",
+          "ks_distance": 0.63235,
+          "train_median": 0.0,
+          "eval_median": 1896.91748046875
+        },
+        {
+          "feature": "bwd_bytes",
+          "ks_distance": 0.6317999999999999,
+          "train_median": 0.0,
+          "eval_median": 11601.0
+        },
+        {
+          "feature": "bwd_packet_length_std",
+          "ks_distance": 0.6317999999999999,
+          "train_median": 0.0,
+          "eval_median": 2189.77294921875
+        },
+        {
+          "feature": "packet_length_mean",
+          "ks_distance": 0.5979000000000001,
+          "train_median": 440.0,
+          "eval_median": 833.5
+        },
+        {
+          "feature": "bwd_packets",
+          "ks_distance": 0.5673999999999999,
+          "train_median": 0.0,
+          "eval_median": 4.0
+        },
+        {
+          "feature": "flow_iat_std",
+          "ks_distance": 0.47055,
+          "train_median": 59335.953125,
+          "eval_median": 910386.3125
+        },
+        {
+          "feature": "flow_packets_per_second",
+          "ks_distance": 0.46934999999999993,
+          "train_median": 37.398033142089844,
+          "eval_median": 2.6703763008117676
+        },
+        {
+          "feature": "flow_iat_mean",
+          "ks_distance": 0.46915,
+          "train_median": 35651.0,
+          "eval_median": 480753.6875
+        },
+        {
+          "feature": "flow_duration",
+          "ks_distance": 0.44765,
+          "train_median": 107194.0,
+          "eval_median": 1876862.0
+        },
+        {
+          "feature": "flow_bytes_per_second",
+          "ks_distance": 0.4316500000000001,
+          "train_median": 13218.4208984375,
+          "eval_median": 160.0668182373047
+        },
+        {
+          "feature": "fwd_packets",
+          "ks_distance": 0.40395000000000003,
+          "train_median": 6.0,
+          "eval_median": 4.0
+        },
+        {
+          "feature": "fwd_packet_length_std",
+          "ks_distance": 0.40305,
+          "train_median": 0.0,
+          "eval_median": 5.656854152679443
+        },
+        {
+          "feature": "ack_flag_count",
+          "ks_distance": 0.3809,
+          "train_median": 0.0,
+          "eval_median": 1.0
+        },
+        {
+          "feature": "fin_flag_count",
+          "ks_distance": 0.00024999999999997247,
+          "train_median": 0.0,
+          "eval_median": 0.0
+        },
+        {
+          "feature": "rst_flag_count",
+          "ks_distance": 0.00014999999999998348,
+          "train_median": 0.0,
+          "eval_median": 0.0
+        },
+        {
+          "feature": "syn_flag_count",
+          "ks_distance": 0.0,
+          "train_median": 0.0,
+          "eval_median": 0.0
+        }
+      ]
+    }
+  },
+  "interpretation_limit": "The 2017 data has now been inspected for model diagnosis. It must not be presented as an untouched final benchmark for future tuning."
+}

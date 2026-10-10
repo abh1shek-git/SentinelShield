@@ -15,6 +15,7 @@ SentinelShield is a student project exploring cautious, flow-based detection of 
 - The Streamlit dashboard displays synthetic and uploaded offline traffic, rules, optional synthetic-only ML comparison, stored alerts, and simulation-only block entries.
 - The dashboard now offers bounded, opt-in live capture after an explicit authorization checkbox and button click. Capture is limited to 60 seconds and stores only derived packet metadata.
 - A separate binary flow baseline has been trained on the supplied CIC-DDoS2019 CSV and evaluated on the supplied CIC-IDS2017 Friday DDoS CSV. Its external result is weak; it is not connected to live detection.
+- A reproducible comparison found substantial feature distribution differences between the two flow datasets; see [the evaluation notes](docs/ML_EVALUATION.md).
 
 The misspelled legacy filename `traffice_counter.py` is retained for now so existing work is preserved. It will be renamed only alongside an intentional migration step.
 
