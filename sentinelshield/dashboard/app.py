@@ -13,6 +13,11 @@ import plotly.graph_objects as go
 import streamlit as st
 from scapy.error import Scapy_Exception
 
+from sentinelshield.collection.live import (
+    MAX_CAPTURE_SECONDS,
+    capture_live_metadata,
+    list_capture_interfaces,
+)
 from sentinelshield.collection.synthetic import make_synthetic_stream
 from sentinelshield.detection import DetectionConfig, DetectionResult, RuleBasedDetector
 from sentinelshield.evaluation.dataset import generate_synthetic_dataset
@@ -115,7 +120,11 @@ def main() -> None:
         st.header("Traffic source")
         source_mode = st.radio(
             "Choose input",
-            ["Synthetic demonstration", "Offline PCAP / PCAPNG"],
+            [
+                "Synthetic demonstration",
+                "Offline PCAP / PCAPNG",
+                "Live capture (opt-in)",
+            ],
             index=0,
             key="source_mode",
         )
@@ -145,7 +154,7 @@ def main() -> None:
             help="This model was trained only on hand-designed synthetic examples. Its predictions and metrics are not validated on real captures.",
         )
         st.divider()
-        st.info("Live capture is not started by this dashboard.")
+        st.info("Live capture is available only after explicit authorization and a button click.")
 
     config = DetectionConfig(
         minimum_unusual_pps=float(minimum_unusual_pps),
@@ -176,20 +185,83 @@ def main() -> None:
             "real network observation, or attack benchmark."
         )
     else:
-        uploaded_file = st.file_uploader(
-            "Select an authorized PCAP or PCAPNG file",
-            type=["pcap", "pcapng"],
-            help="The uploaded file is parsed from a temporary file and not copied into the project database.",
-            key="pcap_upload",
-        )
-        if uploaded_file is not None:
+        if source_mode == "Offline PCAP / PCAPNG":
+            uploaded_file = st.file_uploader(
+                "Select an authorized PCAP or PCAPNG file",
+                type=["pcap", "pcapng"],
+                help="The uploaded file is parsed from a temporary file and not copied into the project database.",
+                key="pcap_upload",
+            )
+            if uploaded_file is not None:
+                try:
+                    features, source_ips = load_uploaded_capture(
+                        uploaded_file.getvalue(), float(window_seconds)
+                    )
+                    input_ready = True
+                except (OSError, Scapy_Exception, ValueError) as error:
+                    st.error(f"Could not read this capture: {error}")
+        else:
+            st.warning(
+                "Capture only traffic you are authorized to monitor. The capture runs "
+                "once for at most 60 seconds and stores packet metadata only."
+            )
+            authorized = st.checkbox(
+                "I am authorized to monitor traffic on the selected interface.",
+                key="live_capture_authorized",
+            )
             try:
-                features, source_ips = load_uploaded_capture(
-                    uploaded_file.getvalue(), float(window_seconds)
-                )
-                input_ready = True
+                interfaces = list_capture_interfaces()
             except (OSError, Scapy_Exception, ValueError) as error:
-                st.error(f"Could not read this capture: {error}")
+                interfaces = []
+                st.error(f"Could not list capture interfaces: {error}")
+
+            if interfaces:
+                selected_interface = st.selectbox(
+                    "Capture interface", interfaces, key="live_capture_interface"
+                )
+                duration_seconds = st.select_slider(
+                    "Capture duration",
+                    options=[5, 10, 20, 30, MAX_CAPTURE_SECONDS],
+                    value=10,
+                    format_func=lambda value: f"{value} seconds",
+                    key="live_capture_duration",
+                )
+                if st.button(
+                    "Start bounded capture",
+                    type="primary",
+                    disabled=not authorized,
+                    key="start_live_capture",
+                ):
+                    try:
+                        with st.spinner(
+                            f"Capturing metadata for up to {duration_seconds} seconds..."
+                        ):
+                            live_records, capture_source = capture_live_metadata(
+                                selected_interface, int(duration_seconds)
+                            )
+                        st.session_state["live_capture_result"] = {
+                            "records": live_records,
+                            "interface": selected_interface,
+                            "duration_seconds": int(duration_seconds),
+                            "source_kind": capture_source,
+                        }
+                    except (OSError, Scapy_Exception, ValueError) as error:
+                        st.error(f"Live capture failed: {error}")
+
+                saved_capture = st.session_state.get("live_capture_result")
+                if saved_capture:
+                    st.caption(
+                        f"Showing the last bounded capture from {saved_capture['interface']} "
+                        f"({saved_capture['duration_seconds']} seconds max)."
+                    )
+                    live_records = saved_capture["records"]
+                    features = aggregate_windows(live_records, float(window_seconds))
+                    source_ips = sorted({record.source_ip for record in live_records})
+                    input_ready = True
+                else:
+                    st.caption("No live capture has been started in this session.")
+            else:
+                st.info("No capture interfaces were found. Check Npcap and Scapy setup.")
 
     if not input_ready:
         st.warning("Choose a traffic source to populate the dashboard.")

@@ -13,7 +13,7 @@ SentinelShield is a student project exploring cautious, flow-based detection of 
 - The supervised Random Forest training, holdout evaluation, versioned model artifact, and inference path are implemented. Synthetic data is available only as a clearly marked pipeline demo.
 - SQLite persists aggregate windows, deduplicated alerts, and simulation-only expiring block entries.
 - The Streamlit dashboard displays synthetic and uploaded offline traffic, rules, optional synthetic-only ML comparison, stored alerts, and simulation-only block entries.
-- Live capture integration has not yet been implemented.
+- The dashboard now offers bounded, opt-in live capture after an explicit authorization checkbox and button click. Capture is limited to 60 seconds and stores only derived packet metadata.
 
 The misspelled legacy filename `traffice_counter.py` is retained for now so existing work is preserved. It will be renamed only alongside an intentional migration step.
 
@@ -41,10 +41,10 @@ docs/
 4. Reproducible ML training, inference, and evaluation (initial pipeline implemented).
 5. SQLite event storage and simulated, expiring blocklist (implemented).
 6. Streamlit and Plotly dashboard (initial integration implemented).
-7. Optional, opt-in live capture.
+7. Optional, opt-in live capture (implemented with a bounded dashboard control).
 8. Evaluation, demonstration instructions, and complete technical documentation.
 
-The core pipeline will be developed and verified before live capture or firewall enforcement. Synthetic scenarios are labelled synthetic; no performance results are claimed.
+The core pipeline was developed and verified before adding live capture. Firewall enforcement remains out of scope. Synthetic scenarios are labelled synthetic; no performance results are claimed.
 
 ## First processing slice
 
@@ -68,13 +68,13 @@ Train a clearly labeled synthetic demonstration model and write a local metrics 
 python -m sentinelshield.evaluation.train --synthetic-demo --model models/synthetic-demo.joblib --metrics results/synthetic-demo.json
 ```
 
-Launch the dashboard after installing project dependencies:
+Launch the dashboard after installing project dependencies. Use the virtual environment's Python so it can find Streamlit and Plotly:
 
 ```powershell
-python -m streamlit run sentinelshield/dashboard/app.py
+.\.venv\Scripts\python.exe -m streamlit run sentinelshield/dashboard/app.py
 ```
 
-The dashboard defaults to a local synthetic demonstration. You can switch to an authorized offline PCAP/PCAPNG upload. Uploaded capture bytes are parsed via a temporary file and are not copied into SQLite. The optional ML comparison trains a clearly labeled synthetic-only model in memory. The simulated block control only records a database entry; it never changes firewall or network settings.
+The dashboard defaults to a local synthetic demonstration. You can switch to an authorized offline PCAP/PCAPNG upload or start a single live capture on a selected interface after confirming authorization. Live capture is explicitly user-triggered, lasts at most 60 seconds, and keeps derived headers/flow metadata only; raw packet payloads are not retained. On Windows, live capture may require Npcap and appropriate interface permissions. Uploaded capture bytes are parsed via a temporary file and are not copied into SQLite. The optional ML comparison trains a clearly labeled synthetic-only model in memory. The simulated block control only records a database entry; it never changes firewall or network settings.
 
 To train from measured labeled windows, provide a CSV containing all feature columns in `sentinelshield.evaluation.model.FEATURE_COLUMNS` plus a `label` column:
 
