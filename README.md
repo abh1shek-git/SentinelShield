@@ -9,7 +9,8 @@ SentinelShield is a student project exploring cautious, flow-based detection of 
 - The counter's fixed thresholds (500 packets and 70% SYN) are unvalidated experiments. High packet volume or a high SYN ratio alone does not prove a DDoS attack.
 - Packet capture is live and starts immediately when either script is run. It may require Npcap and elevated permissions on Windows. Do not run it on networks you are not authorized to monitor.
 - Offline PCAP metadata reading, labelled synthetic scenarios, and fixed-window aggregate features are implemented and covered by unit tests.
-- Rule-based detection, adaptive baselines, ML, persistence, dashboard, and live capture integration have not yet been implemented.
+- The interpretable rule detector and adaptive packet-rate baseline are implemented and tested.
+- ML, persistence, dashboard, and live capture integration have not yet been implemented.
 
 The misspelled legacy filename `traffice_counter.py` is retained for now so existing work is preserved. It will be renamed only alongside an intentional migration step.
 
@@ -33,7 +34,7 @@ docs/
 
 1. Repository foundation and audit (current step).
 2. Offline and synthetic collection with deterministic feature extraction.
-3. Interpretable rule-based detection and adaptive baseline.
+3. Interpretable rule-based detection and adaptive baseline (implemented).
 4. Reproducible ML training, inference, and evaluation.
 5. SQLite event storage and simulated, expiring blocklist.
 6. Streamlit and Plotly dashboard.
@@ -45,6 +46,8 @@ The core pipeline will be developed and verified before live capture or firewall
 ## First processing slice
 
 `sentinelshield.processing.traffic` converts IPv4/IPv6 packets into metadata records and aggregates them into epoch-aligned windows. It stores no payload. The current feature set includes packet/byte rates, packet size statistics, protocol counts, initial SYN-only and SYN-ACK counts, TCP ACK/FIN/RST flag counts, unique IPs/ports, and five-tuple flow count. The SYN ratio is initial SYN-only packets divided by TCP packets; it is only one indicator and is not an attack verdict. Offline PCAP support and small deterministic `normal`/`syn_heavy` synthetic scenarios are available.
+
+`sentinelshield.detection.RuleBasedDetector` compares packet rate with a rolling median/MAD baseline after a configurable warm-up. Before warm-up, it uses an absolute configurable rate floor. Only windows considered normal enter the baseline. High rate alone is labeled `Unusual Traffic`; a high initial-SYN ratio/rate alone is `Suspicious TCP SYN Pattern`; only both together produce the cautious label `Potential DDoS Activity`. Defaults are starting values and have not been calibrated on a real labeled dataset.
 
 Run the unit tests with:
 
