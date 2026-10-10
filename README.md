@@ -11,7 +11,8 @@ SentinelShield is a student project exploring cautious, flow-based detection of 
 - Offline PCAP metadata reading, labelled synthetic scenarios, and fixed-window aggregate features are implemented and covered by unit tests.
 - The interpretable rule detector and adaptive packet-rate baseline are implemented and tested.
 - The supervised Random Forest training, holdout evaluation, versioned model artifact, and inference path are implemented. Synthetic data is available only as a clearly marked pipeline demo.
-- SQLite persistence, dashboard, and live capture integration have not yet been implemented.
+- SQLite persists aggregate windows, deduplicated alerts, and simulation-only expiring block entries.
+- Dashboard and live capture integration have not yet been implemented.
 
 The misspelled legacy filename `traffice_counter.py` is retained for now so existing work is preserved. It will be renamed only alongside an intentional migration step.
 
@@ -37,7 +38,7 @@ docs/
 2. Offline and synthetic collection with deterministic feature extraction.
 3. Interpretable rule-based detection and adaptive baseline (implemented).
 4. Reproducible ML training, inference, and evaluation (initial pipeline implemented).
-5. SQLite event storage and simulated, expiring blocklist.
+5. SQLite event storage and simulated, expiring blocklist (implemented).
 6. Streamlit and Plotly dashboard.
 7. Optional, opt-in live capture.
 8. Evaluation, demonstration instructions, and complete technical documentation.
@@ -51,6 +52,8 @@ The core pipeline will be developed and verified before live capture or firewall
 `sentinelshield.detection.RuleBasedDetector` compares packet rate with a rolling median/MAD baseline after a configurable warm-up. Before warm-up, it uses an absolute configurable rate floor. Only windows considered normal enter the baseline. High rate alone is labeled `Unusual Traffic`; a high initial-SYN ratio/rate alone is `Suspicious TCP SYN Pattern`; only both together produce the cautious label `Potential DDoS Activity`. Defaults are starting values and have not been calibrated on a real labeled dataset.
 
 The initial supervised ML path trains a Random Forest from a labeled feature CSV and reports stratified holdout accuracy, weighted precision/recall/F1, and a confusion matrix. A deterministic synthetic demo dataset is available for checking the training and inference code; its results are explicitly marked synthetic and do not describe real-world detection quality. Models store a feature schema version and dataset provenance.
+
+`sentinelshield.storage.SQLiteStore` saves aggregate windows, alert reasons, and mitigation decisions in SQLite. Repeated windows and identical alerts are ignored. Simulated IP blocks are validated, expire according to their UTC timestamp, and remain in the history after expiry. This component has no firewall or operating-system enforcement path.
 
 Run the unit tests with:
 
