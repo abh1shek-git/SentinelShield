@@ -22,31 +22,31 @@ from sklearn.metrics import (
 )
 
 
-# Only flow measurements with the same meaning in both supplied CSV schemas.
-# Protocol and destination port are deliberately excluded: each is absent from
-# one source. The existing packet-window model uses a different feature schema.
+# Only flow measurements with the same meaning in the three CSV schemas.
+# Protocol and destination port are excluded because each is absent from one
+# source. The existing packet-window model uses a different feature schema.
 FEATURE_ALIASES = {
-    "flow_duration": ("Flow Duration", "Flow Duration"),
-    "fwd_packets": ("Total Fwd Packets", "Total Fwd Packets"),
-    "bwd_packets": ("Total Backward Packets", "Total Backward Packets"),
-    "fwd_bytes": ("Fwd Packets Length Total", "Total Length of Fwd Packets"),
-    "bwd_bytes": ("Bwd Packets Length Total", "Total Length of Bwd Packets"),
-    "fwd_packet_length_max": ("Fwd Packet Length Max", "Fwd Packet Length Max"),
-    "fwd_packet_length_mean": ("Fwd Packet Length Mean", "Fwd Packet Length Mean"),
-    "fwd_packet_length_std": ("Fwd Packet Length Std", "Fwd Packet Length Std"),
-    "bwd_packet_length_max": ("Bwd Packet Length Max", "Bwd Packet Length Max"),
-    "bwd_packet_length_mean": ("Bwd Packet Length Mean", "Bwd Packet Length Mean"),
-    "bwd_packet_length_std": ("Bwd Packet Length Std", "Bwd Packet Length Std"),
-    "flow_packets_per_second": ("Flow Packets/s", "Flow Packets/s"),
-    "flow_bytes_per_second": ("Flow Bytes/s", "Flow Bytes/s"),
-    "flow_iat_mean": ("Flow IAT Mean", "Flow IAT Mean"),
-    "flow_iat_std": ("Flow IAT Std", "Flow IAT Std"),
-    "packet_length_mean": ("Packet Length Mean", "Packet Length Mean"),
-    "packet_length_std": ("Packet Length Std", "Packet Length Std"),
-    "syn_flag_count": ("SYN Flag Count", "SYN Flag Count"),
-    "ack_flag_count": ("ACK Flag Count", "ACK Flag Count"),
-    "fin_flag_count": ("FIN Flag Count", "FIN Flag Count"),
-    "rst_flag_count": ("RST Flag Count", "RST Flag Count"),
+    "flow_duration": ("Flow Duration", "Flow Duration", "Flow Duration"),
+    "fwd_packets": ("Total Fwd Packets", "Total Fwd Packets", "Tot Fwd Pkts"),
+    "bwd_packets": ("Total Backward Packets", "Total Backward Packets", "Tot Bwd Pkts"),
+    "fwd_bytes": ("Fwd Packets Length Total", "Total Length of Fwd Packets", "TotLen Fwd Pkts"),
+    "bwd_bytes": ("Bwd Packets Length Total", "Total Length of Bwd Packets", "TotLen Bwd Pkts"),
+    "fwd_packet_length_max": ("Fwd Packet Length Max", "Fwd Packet Length Max", "Fwd Pkt Len Max"),
+    "fwd_packet_length_mean": ("Fwd Packet Length Mean", "Fwd Packet Length Mean", "Fwd Pkt Len Mean"),
+    "fwd_packet_length_std": ("Fwd Packet Length Std", "Fwd Packet Length Std", "Fwd Pkt Len Std"),
+    "bwd_packet_length_max": ("Bwd Packet Length Max", "Bwd Packet Length Max", "Bwd Pkt Len Max"),
+    "bwd_packet_length_mean": ("Bwd Packet Length Mean", "Bwd Packet Length Mean", "Bwd Pkt Len Mean"),
+    "bwd_packet_length_std": ("Bwd Packet Length Std", "Bwd Packet Length Std", "Bwd Pkt Len Std"),
+    "flow_packets_per_second": ("Flow Packets/s", "Flow Packets/s", "Flow Pkts/s"),
+    "flow_bytes_per_second": ("Flow Bytes/s", "Flow Bytes/s", "Flow Byts/s"),
+    "flow_iat_mean": ("Flow IAT Mean", "Flow IAT Mean", "Flow IAT Mean"),
+    "flow_iat_std": ("Flow IAT Std", "Flow IAT Std", "Flow IAT Std"),
+    "packet_length_mean": ("Packet Length Mean", "Packet Length Mean", "Pkt Len Mean"),
+    "packet_length_std": ("Packet Length Std", "Packet Length Std", "Pkt Len Std"),
+    "syn_flag_count": ("SYN Flag Count", "SYN Flag Count", "SYN Flag Cnt"),
+    "ack_flag_count": ("ACK Flag Count", "ACK Flag Count", "ACK Flag Cnt"),
+    "fin_flag_count": ("FIN Flag Count", "FIN Flag Count", "FIN Flag Cnt"),
+    "rst_flag_count": ("RST Flag Count", "RST Flag Count", "RST Flag Cnt"),
 }
 FEATURE_COLUMNS = tuple(FEATURE_ALIASES)
 LABELS = ("Benign", "DDoS")
@@ -62,9 +62,10 @@ def _sha256(path: Path) -> str:
 
 def load_flows(path: Path, source: str) -> tuple[pd.DataFrame, pd.Series, dict]:
     """Read common numeric flow features and audit excluded rows."""
-    if source not in {"cicddos2019", "cicids2017"}:
+    source_indexes = {"cicddos2019": 0, "cicids2017": 1, "cicids2018": 2}
+    if source not in source_indexes:
         raise ValueError(f"Unsupported source: {source}")
-    source_index = 0 if source == "cicddos2019" else 1
+    source_index = source_indexes[source]
     header = pd.read_csv(path, nrows=0).columns
     stripped_to_raw = {name.strip(): name for name in header}
     needed = [aliases[source_index] for aliases in FEATURE_ALIASES.values()]
@@ -86,11 +87,21 @@ def load_flows(path: Path, source: str) -> tuple[pd.DataFrame, pd.Series, dict]:
         if inconsistent.any():
             raise ValueError("CIC-DDoS2019 Label and Class columns disagree")
         labels = classes.map({"Attack": "DDoS", "Benign": "Benign"})
-    else:
+    elif source == "cicids2017":
         unknown = sorted(set(raw_labels.dropna()) - {"BENIGN", "DDoS"})
         if unknown or raw_labels.isna().any():
             raise ValueError(f"Unexpected CIC-IDS2017 labels: {unknown}")
         labels = raw_labels.map({"BENIGN": "Benign", "DDoS": "DDoS"})
+    else:
+        allowed = {
+            "Benign": "Benign",
+            "DDOS attack-HOIC": "DDoS",
+            "DDOS attack-LOIC-UDP": "DDoS",
+        }
+        unknown = sorted(set(raw_labels.dropna()) - set(allowed))
+        if unknown or raw_labels.isna().any():
+            raise ValueError(f"Unexpected CSE-CIC-IDS2018 labels: {unknown}")
+        labels = raw_labels.map(allowed)
 
     renamed = {
         aliases[source_index]: canonical

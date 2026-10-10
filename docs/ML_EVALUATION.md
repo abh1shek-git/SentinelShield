@@ -67,6 +67,20 @@ For attack flows, median forward bytes are **2,064** in the 2019 file versus **2
 
 This inspection uses the 2017 file to guide future work, so it is no longer an untouched final benchmark for model changes. A future improved model needs another independent capture for final evaluation. Until then, do not deploy this flow model or present its score as live DDoS detection performance.
 
+## Third-dataset held-out evaluation
+
+A second baseline trains on the valid 2019 and 2017 rows together, then evaluates once on a separate 2018 capture day. The 2018 CSV came from a [single-file mirror](https://huggingface.co/datasets/pcy12345BSU/CSE-CIC-IDS-2018/tree/main/data) of the [CSE-CIC-IDS2018 dataset](https://www.unb.ca/cic/datasets/ids-2018.html). The original dataset authors should be cited when using these results. The raw file stays in Git-ignored `data/raw/`.
+
+```powershell
+.\.venv\Scripts\python.exe -m sentinelshield.evaluation.flow_multisource --cicddos2019-csv cicddos2019_dataset.csv --cicids2017-csv Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv --cicids2018-csv data/raw/Wednesday-21-02-2018_TrafficForML_CICFlowMeter.csv --model models/cic-multisource-flow.joblib --report results/cic-multisource-flow.json
+```
+
+The 2018 file has **1,048,575** rows: 360,833 benign, 686,012 labeled `DDOS attack-HOIC`, and 1,730 labeled `DDOS attack-LOIC-UDP`. This exact row count is one below Excel's worksheet row limit; completeness of the mirror against the original release has not been verified. The file also has 487,378 duplicate rows under the selected 21-feature schema, which limits how much independent information the row count represents.
+
+The model trained on **657,082** valid 2019 and 2017 flows. On the held-out 2018 file, its confusion matrix was `[[360521, 312], [687716, 26]]` (rows and columns ordered benign, DDoS). It detected just **26 of 687,742 DDoS flows**, or **0.0038% recall**, with **312 false alarms**. Accuracy was **34.38%**, roughly the **34.41%** of an always-benign classifier on this file. See [the full report](../results/cic-multisource-flow.json) for source hashes, exclusions, and reference baselines.
+
+After recording that held-out result, inspection found median forward and backward byte totals of **zero** for 2018 DDoS flows. The earlier 2019 and 2017 DDoS flows had different packet-size patterns, so the training examples do not cover this attack behavior well. This is an observed distribution difference, not proof of a single cause. The 2018 file has now also been inspected for diagnosis; any future model tuned in response needs another independent final evaluation capture. The current flow models must remain separate from live detection.
+
 ## Before reporting a real-data result
 
 Keep a record of the capture source, collection period, environment, label definitions, and exclusions. Have labels assigned independently of this model's predictions. Partition by capture, scenario, or time before training so adjacent windows from the same trace cannot land in both sets. The packet-window training CLI supports only a stratified random row split; use its metrics as a first-stage check and do not describe them as leakage-resistant research results. The separate flow baseline uses one training dataset and one external evaluation dataset. Report per-class errors and false alarms alongside aggregate scores when extending the evaluation.
