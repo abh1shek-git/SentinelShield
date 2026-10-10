@@ -2,6 +2,8 @@
 
 Date: 2026-10-10
 
+This file records the project state at the original repository audit. It is retained as historical context; its inventory, environment, and next-step sections do not describe the current implementation.
+
 ## Files and behavior
 
 | File | Observed behavior | Initial concerns |
@@ -25,6 +27,6 @@ Python 3.14.3 is available. Scapy 2.7.0, Pandas 3.0.5, NumPy 2.5.2, and scikit-l
 - Keep mitigation simulated by default and isolate optional real enforcement behind explicit configuration and confirmation.
 - Preserve the existing script names for this foundation step; migrate the misspelled counter filename deliberately later.
 
-## Next implementation step
+## Next implementation step at audit time
 
 Create the package skeleton and an offline/synthetic input contract, then implement deterministic packet metadata and window feature extraction with focused tests. The scripts remain as legacy demonstrations until replacement behavior is working.

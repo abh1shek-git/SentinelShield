@@ -12,7 +12,7 @@ Window and alert writes are idempotent. A window has a unique `(window_start, wi
 
 `record_simulated_block` only writes a database row. It does not invoke Windows Firewall, iptables, or another enforcement mechanism. Inputs require a valid IPv4/IPv6 address, a non-empty reason, and a positive TTL. `active_simulated_blocks` returns only entries whose UTC expiry is still in the future; expired decisions remain available in `list_mitigation_events` for audit history.
 
-The current model does not automatically turn a detection alert into a simulated block. That decision workflow will be connected later through the dashboard and reviewed as a separate feature. Real enforcement is not implemented.
+The dashboard can record a manually selected IP as a simulated block, with an expiry. A detection alert does not automatically become a simulated block. Real enforcement is not implemented.
 
 ## Example
 
@@ -30,4 +30,4 @@ store.record_simulated_block(
 )
 ```
 
-The database path should be a local runtime-data path; SQLite files are ignored by Git. The initial store is synchronous and opens a connection per operation, which is suitable for the current small local project. A future dashboard integration should keep database calls short and avoid sharing raw connections across threads.
+The database path should be a local runtime-data path; SQLite files are ignored by Git. The dashboard uses `data/sentinelshield.sqlite3` by default and accepts `SENTINELSHIELD_DATABASE` to select a different path. The store is synchronous and opens a connection per operation, which is suitable for the current small local project. It keeps no raw packets or uploaded capture files.

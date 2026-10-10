@@ -12,6 +12,15 @@ Labels in the synthetic demo are `Normal`, `Unusual Traffic`, `Suspicious TCP SY
 
 The default split reserves 25% of examples for a stratified holdout using random state 42. The model uses 200 trees, class-balanced subsampling, and a fixed random seed. Evaluation reports accuracy, weighted precision, weighted recall, weighted F1, label order, confusion matrix, and holdout size. Metrics are calculated from the held-out rows by the code; no results are hard-coded.
 
+Run the synthetic pipeline check or train from a CSV with these commands:
+
+```powershell
+.\.venv\Scripts\python.exe -m sentinelshield.evaluation.train --synthetic-demo --model models/synthetic-demo.joblib --metrics results/synthetic-demo.json
+.\.venv\Scripts\python.exe -m sentinelshield.evaluation.train --input-csv data/processed/labeled_windows.csv --model models/traffic-model.joblib --metrics results/traffic-model.json
+```
+
+The CSV must contain all 21 numeric feature columns and `label`. An optional `source_kind` column is copied into provenance metadata and is not used as a feature. If omitted, the CLI marks provenance as `unspecified_csv_provenance`; do not treat that as verified real data. Synthetic outputs and local model artifacts are ignored by Git.
+
 For reliable research evaluation, ensure related flows/captures do not appear in both train and test partitions. A random row split can leak capture-specific patterns when rows from the same time series are correlated. This initial pipeline does not yet support grouped or time-based splitting, so its metrics are only a first-stage check and can be optimistic for real captures.
 
 ## Synthetic demo
@@ -30,3 +39,8 @@ Saved artifacts include a schema version, exact ordered feature list, model, and
 - The demo data is deliberately separable and does not model diverse benign traffic or realistic attack variability.
 - No probability calibration, threshold selection, drift monitoring, grouped split, or time-based evaluation exists yet.
 - The ML label is a learned pattern classification and must not be presented as confirmation that an attack occurred.
+- The dashboard's optional ML comparison trains the bundled synthetic dataset in memory. It does not load a user-trained CSV model; user-trained artifacts are currently produced for separate evaluation/inference workflows.
+
+## Before reporting a real-data result
+
+Keep a record of the capture source, collection period, environment, label definitions, and exclusions. Have labels assigned independently of this model's predictions. Partition by capture, scenario, or time before training so adjacent windows from the same trace cannot land in both sets. The current CLI supports only a stratified random row split; use its metrics as a first-stage check and do not describe them as leakage-resistant research results. Report per-class errors and false alarms alongside aggregate scores when extending the evaluation.

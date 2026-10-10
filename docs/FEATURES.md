@@ -1,10 +1,10 @@
 # Traffic feature definitions
 
-This document describes the features implemented in the initial offline processing slice. They summarize observed packet metadata; they do not identify intent or prove a DDoS attack.
+This document describes the current packet and window features. They summarize packet metadata; they do not identify intent or prove a DDoS attack.
 
 ## Input record
 
-`PacketRecord` stores a capture timestamp, source/destination IP addresses, transport protocol, packet length, optional transport ports, TCP flags, and a source marker (`pcap`, `synthetic`, or `observed`). It does not store packet payload. Unsupported non-IP packets are skipped.
+`PacketRecord` stores a capture timestamp, source/destination IP addresses, transport protocol, packet length, optional transport ports, TCP flags, and a source marker (`pcap:<capture-id>`, `live:<capture-id>`, `synthetic`, or `observed`). It does not store packet payload. Unsupported non-IP packets are skipped. Live capture extracts metadata in the packet callback and calls Scapy with packet storage disabled.
 
 Offline capture reading supports classic PCAP and PCAPNG files. The file is streamed packet by packet; records are emitted only when an IPv4 or IPv6 header is present.
 
@@ -28,8 +28,8 @@ TCP flags can be missing when capture data is incomplete or the packet is not de
 
 ## Synthetic scenarios
 
-`make_synthetic_scenario("normal")` and `make_synthetic_scenario("syn_heavy")` return small deterministic examples with `source_kind="synthetic"` and a scenario label. They are pipeline fixtures, not realistic attack simulations or evaluation results. The scenarios are intended to test data flow and feature calculations only.
+`make_synthetic_scenario("normal")` and `make_synthetic_scenario("syn_heavy")` return small deterministic examples with `source_kind="synthetic"` and a scenario label. `make_synthetic_stream()` creates a 30-window dashboard demonstration with normal, unusual-rate, SYN-heavy, and combined phases. These are pipeline fixtures, not realistic attack simulations or evaluation results.
 
-## Not implemented yet
+## Detection outputs and limits
 
-These features are not yet calculated: flow durations, inter-arrival summaries, source-to-destination distributions, per-source rolling windows, adaptive thresholds, classifier scores, or detection decisions. Those will be added in subsequent stages and documented when verified.
+The rule detector computes an adaptive packet-rate threshold and explanatory decision for each window; these are results, not columns in the 21-feature ML schema. The optional dashboard ML comparison uses a separately trained synthetic-only model. Per-flow duration, inter-arrival summaries, source-to-destination distributions, per-source rolling baselines, and classifier probability calibration are not implemented.

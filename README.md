@@ -42,7 +42,7 @@ docs/
 5. SQLite event storage and simulated, expiring blocklist (implemented).
 6. Streamlit and Plotly dashboard (initial integration implemented).
 7. Optional, opt-in live capture (implemented with a bounded dashboard control).
-8. Evaluation, demonstration instructions, and complete technical documentation.
+8. Real-data evaluation and complete technical documentation (evaluation still requires a labeled dataset; no real-world scores are claimed).
 
 The core pipeline was developed and verified before adding live capture. Firewall enforcement remains out of scope. Synthetic scenarios are labelled synthetic; no performance results are claimed.
 
@@ -75,6 +75,8 @@ Launch the dashboard after installing project dependencies. Use the virtual envi
 ```
 
 The dashboard defaults to a local synthetic demonstration. You can switch to an authorized offline PCAP/PCAPNG upload or start a single live capture on a selected interface after confirming authorization. Live capture is explicitly user-triggered, lasts at most 60 seconds, and keeps derived headers/flow metadata only; raw packet payloads are not retained. On Windows, live capture may require Npcap and appropriate interface permissions. Uploaded capture bytes are parsed via a temporary file and are not copied into SQLite. The optional ML comparison trains a clearly labeled synthetic-only model in memory. The simulated block control only records a database entry; it never changes firewall or network settings.
+
+Technical guides: [dashboard demo](docs/DEMO_GUIDE.md), [live capture](docs/LIVE_CAPTURE.md), [feature definitions](docs/FEATURES.md), [detection behavior](docs/DETECTION.md), [ML evaluation](docs/ML_EVALUATION.md), and [SQLite storage](docs/STORAGE.md).
 
 To train from measured labeled windows, provide a CSV containing all feature columns in `sentinelshield.evaluation.model.FEATURE_COLUMNS` plus a `label` column:
 

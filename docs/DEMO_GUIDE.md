@@ -1,0 +1,32 @@
+# Demonstration guide
+
+## Start the dashboard
+
+From the repository root, install the project dependencies if needed, then run:
+
+```powershell
+.\.venv\Scripts\python.exe -m streamlit run sentinelshield/dashboard/app.py
+```
+
+The dashboard starts in synthetic demonstration mode. It does not start live capture automatically.
+
+## Suggested walkthrough
+
+1. Leave **Synthetic demonstration** selected and review the traffic-rate chart, initial-SYN chart, rule labels, and detector reasons.
+2. Try **Mixed demonstration**, **Normal only**, and **SYN-heavy windows**. The generated stream is deterministic and explicitly marked synthetic.
+3. Turn on **Compare with synthetic-trained ML demo** only to demonstrate that the training/inference path works. Its scores are based on hand-designed synthetic data and are not evidence of real network performance.
+4. If you have an authorized capture file, choose **Offline PCAP / PCAPNG** and upload it. The file is parsed from a temporary directory; capture payloads are not saved in the project database.
+5. For an authorized local interface, follow [live capture instructions](LIVE_CAPTURE.md). A capture requires the explicit authorization checkbox and button click.
+6. Optionally enter an IP in **Temporary block simulation**. This adds a simulated database record with an expiry; it does not change the firewall.
+
+## Interpreting results
+
+- `Unusual Traffic` means the packet rate exceeded the configured rule threshold.
+- `Suspicious TCP SYN Pattern` means the SYN ratio and SYN rate rules passed.
+- `Potential DDoS Activity` means both rules passed. It is a cautious indicator, not confirmation of an attack.
+- Adjusting sensitivity changes rule decisions. Defaults have not been calibrated on a measured labeled dataset.
+- A host capture sees only traffic visible to the selected host/interface; it is not automatically a network-wide sensor.
+
+## What this demonstration does not establish
+
+The synthetic stream is not a replay of an attack, and the synthetic ML holdout is not a benchmark. Do not report its perfect scores as expected real-world performance. A research evaluation needs independently labeled benign and controlled test captures, a documented labeling method, and a split that prevents related windows from leaking across train and test sets. The current trainer uses a stratified random row split, so it does not yet provide that group-aware evaluation.
