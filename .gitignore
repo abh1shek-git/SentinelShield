@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Captures, datasets, and generated models (keep samples out of Git by default)
+*.pcap
+*.pcapng
+data/raw/
+data/processed/
+models/*.joblib
+models/*.pkl
+
+# Local runtime data
+*.db
+*.sqlite
+*.sqlite3
+logs/
