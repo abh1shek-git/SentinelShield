@@ -33,14 +33,28 @@ Saved artifacts include a schema version, exact ordered feature list, model, and
 
 ## Current limitations
 
-- No public labeled dataset has been downloaded or evaluated yet.
-- There are no measured real-world precision, recall, F1, false-positive, or false-negative results.
+- A separate labeled-flow baseline has now been evaluated; its weak result does not validate the live packet-window model.
+- There are no measured live packet-window precision, recall, F1, false-positive, or false-negative results.
 - The random row split can overstate performance if correlated rows are present.
 - The demo data is deliberately separable and does not model diverse benign traffic or realistic attack variability.
 - No probability calibration, threshold selection, drift monitoring, grouped split, or time-based evaluation exists yet.
 - The ML label is a learned pattern classification and must not be presented as confirmation that an attack occurred.
 - The dashboard's optional ML comparison trains the bundled synthetic dataset in memory. It does not load a user-trained CSV model; user-trained artifacts are currently produced for separate evaluation/inference workflows.
 
+## Cross-dataset flow baseline
+
+The supplied `cicddos2019_dataset.csv` has 431,371 rows. Its `Class` column is mapped to binary `Benign` and `DDoS`; the specific attack name remains in the data audit. The separate supplied `Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv` has 225,745 rows labeled `BENIGN` or `DDoS`. The command selects 21 numeric flow measurements with the same meaning in both files. It excludes source-specific fields such as protocol and destination port. Missing and non-finite feature rows are removed and counted. The original CIC-DDoS2019 file provenance has not been verified independently.
+
+Run from the repository root:
+
+```powershell
+.\.venv\Scripts\python.exe -m sentinelshield.evaluation.flow_baseline --train-csv cicddos2019_dataset.csv --eval-csv Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv --model models/cic-flow-baseline.joblib --report results/cic-flow-baseline.json
+```
+
+The model trains on all valid CIC-DDoS2019 rows and is evaluated only on the separate CIC-IDS2017 file. The fixed Random Forest settings and random seed are in the command's source. Both raw CSVs and the model artifact are ignored by Git; the small JSON report is committed for review. The output artifact has its own schema and must not be loaded by the dashboard's packet-window `TrafficClassifier`.
+
+On this supplied copy, 34 non-finite CIC-IDS2017 rows were excluded, leaving 225,711 evaluation flows. The measured confusion matrix (rows: actual benign, DDoS; columns: predicted benign, DDoS) was `[[73445, 24241], [81433, 46592]]`. DDoS recall was **36.4%**, DDoS precision **65.8%**, and the benign false-alarm rate **24.8%**. Accuracy was **53.2%**, below the **56.7%** of an always-DDoS reference on this attack-heavy evaluation file; balanced accuracy was **55.8%** versus that reference's **50%**. This model misses too many attacks and raises too many false alarms for live use. It is an initial measure of cross-dataset transfer, not a claim of current-network performance. The external file was not used to tune the model.
+
 ## Before reporting a real-data result
 
-Keep a record of the capture source, collection period, environment, label definitions, and exclusions. Have labels assigned independently of this model's predictions. Partition by capture, scenario, or time before training so adjacent windows from the same trace cannot land in both sets. The current CLI supports only a stratified random row split; use its metrics as a first-stage check and do not describe them as leakage-resistant research results. Report per-class errors and false alarms alongside aggregate scores when extending the evaluation.
+Keep a record of the capture source, collection period, environment, label definitions, and exclusions. Have labels assigned independently of this model's predictions. Partition by capture, scenario, or time before training so adjacent windows from the same trace cannot land in both sets. The packet-window training CLI supports only a stratified random row split; use its metrics as a first-stage check and do not describe them as leakage-resistant research results. The separate flow baseline uses one training dataset and one external evaluation dataset. Report per-class errors and false alarms alongside aggregate scores when extending the evaluation.

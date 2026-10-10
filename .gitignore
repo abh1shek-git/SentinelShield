@@ -20,6 +20,9 @@ env/
 data/raw/
 data/processed/
 Unicauca-dataset-April-June-2019-Network-flows.csv
+cicddos2019_dataset.csv
+Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv
+realtime_ddos_traffic_dataset.csv
 models/*.joblib
 models/*.pkl
 results/synthetic-demo*.json

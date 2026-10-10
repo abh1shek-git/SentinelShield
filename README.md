@@ -14,6 +14,7 @@ SentinelShield is a student project exploring cautious, flow-based detection of 
 - SQLite persists aggregate windows, deduplicated alerts, and simulation-only expiring block entries.
 - The Streamlit dashboard displays synthetic and uploaded offline traffic, rules, optional synthetic-only ML comparison, stored alerts, and simulation-only block entries.
 - The dashboard now offers bounded, opt-in live capture after an explicit authorization checkbox and button click. Capture is limited to 60 seconds and stores only derived packet metadata.
+- A separate binary flow baseline has been trained on the supplied CIC-DDoS2019 CSV and evaluated on the supplied CIC-IDS2017 Friday DDoS CSV. Its external result is weak; it is not connected to live detection.
 
 The misspelled legacy filename `traffice_counter.py` is retained for now so existing work is preserved. It will be renamed only alongside an intentional migration step.
 
@@ -42,9 +43,11 @@ docs/
 5. SQLite event storage and simulated, expiring blocklist (implemented).
 6. Streamlit and Plotly dashboard (initial integration implemented).
 7. Optional, opt-in live capture (implemented with a bounded dashboard control).
-8. Real-data evaluation and complete technical documentation (evaluation still requires a labeled dataset; no real-world scores are claimed).
+8. Real-data evaluation and complete technical documentation (initial cross-dataset flow baseline measured; live-compatible validation still pending).
 
-The core pipeline was developed and verified before adding live capture. Firewall enforcement remains out of scope. Synthetic scenarios are labelled synthetic; no performance results are claimed.
+The real-data flow baseline now provides one cross-dataset result. Further validation and live-compatible features are still needed.
+
+The core pipeline was developed and verified before adding live capture. Firewall enforcement remains out of scope. Synthetic scenarios are labelled synthetic; no live-detection performance is claimed.
 
 ## First processing slice
 
@@ -53,6 +56,8 @@ The core pipeline was developed and verified before adding live capture. Firewal
 `sentinelshield.detection.RuleBasedDetector` compares packet rate with a rolling median/MAD baseline after a configurable warm-up. Before warm-up, it uses an absolute configurable rate floor. Only windows considered normal enter the baseline. High rate alone is labeled `Unusual Traffic`; a high initial-SYN ratio/rate alone is `Suspicious TCP SYN Pattern`; only both together produce the cautious label `Potential DDoS Activity`. Defaults are starting values and have not been calibrated on a real labeled dataset.
 
 The initial supervised ML path trains a Random Forest from a labeled feature CSV and reports stratified holdout accuracy, weighted precision/recall/F1, and a confusion matrix. A deterministic synthetic demo dataset is available for checking the training and inference code; its results are explicitly marked synthetic and do not describe real-world detection quality. Models store a feature schema version and dataset provenance.
+
+The real-data flow baseline is a separate model because CIC flow records do not match the dashboard's packet-window feature schema. It uses shared numeric flow fields from the two supplied datasets, trains on CIC-DDoS2019, and evaluates on CIC-IDS2017. See [flow evaluation](docs/ML_EVALUATION.md) for the command and measured result.
 
 `sentinelshield.storage.SQLiteStore` saves aggregate windows, alert reasons, and mitigation decisions in SQLite. Repeated windows and identical alerts are ignored. Simulated IP blocks are validated, expire according to their UTC timestamp, and remain in the history after expiry. This component has no firewall or operating-system enforcement path.
 

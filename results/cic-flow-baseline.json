@@ -1,0 +1,136 @@
+{
+  "evaluation_kind": "cross_dataset_flow_baseline",
+  "train_source": "user_supplied_CIC_DDoS2019_CSV_provenance_unverified",
+  "eval_source": "user_supplied_CIC_IDS2017_Friday_DDoS_CSV",
+  "model": "RandomForestClassifier",
+  "random_state": 42,
+  "feature_columns": [
+    "flow_duration",
+    "fwd_packets",
+    "bwd_packets",
+    "fwd_bytes",
+    "bwd_bytes",
+    "fwd_packet_length_max",
+    "fwd_packet_length_mean",
+    "fwd_packet_length_std",
+    "bwd_packet_length_max",
+    "bwd_packet_length_mean",
+    "bwd_packet_length_std",
+    "flow_packets_per_second",
+    "flow_bytes_per_second",
+    "flow_iat_mean",
+    "flow_iat_std",
+    "packet_length_mean",
+    "packet_length_std",
+    "syn_flag_count",
+    "ack_flag_count",
+    "fin_flag_count",
+    "rst_flag_count"
+  ],
+  "training_audit": {
+    "file": "cicddos2019_dataset.csv",
+    "sha256": "97af3b16e45f5309a6492cc16d947a74fdc135267f03756b8cea2eb13f4b2379",
+    "original_rows": 431371,
+    "valid_rows": 431371,
+    "removed_nonfinite_or_missing_feature_rows": 0,
+    "label_counts": {
+      "DDoS": 333540,
+      "Benign": 97831
+    },
+    "raw_label_counts": {
+      "UDP": 18090,
+      "MSSQL": 8523,
+      "Benign": 97831,
+      "Portmap": 685,
+      "Syn": 49373,
+      "NetBIOS": 644,
+      "UDPLag": 55,
+      "LDAP": 1906,
+      "DrDoS_DNS": 3669,
+      "UDP-lag": 8872,
+      "WebDDoS": 51,
+      "TFTP": 98917,
+      "DrDoS_UDP": 10420,
+      "DrDoS_SNMP": 2717,
+      "DrDoS_NetBIOS": 598,
+      "DrDoS_LDAP": 1440,
+      "DrDoS_MSSQL": 6212,
+      "DrDoS_NTP": 121368
+    },
+    "duplicate_feature_rows": 81826
+  },
+  "evaluation_audit": {
+    "file": "Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv",
+    "sha256": "6ff1580f5f81c0ae28a26f7631721018577f5f7c5e0feac28b795fcfe7b411ee",
+    "original_rows": 225745,
+    "valid_rows": 225711,
+    "removed_nonfinite_or_missing_feature_rows": 34,
+    "label_counts": {
+      "Benign": 97686,
+      "DDoS": 128025
+    },
+    "raw_label_counts": {
+      "BENIGN": 97718,
+      "DDoS": 128027
+    },
+    "duplicate_feature_rows": 11365
+  },
+  "external_evaluation": {
+    "labels": [
+      "Benign",
+      "DDoS"
+    ],
+    "confusion_matrix": [
+      [
+        73445,
+        24241
+      ],
+      [
+        81433,
+        46592
+      ]
+    ],
+    "accuracy": 0.5318172353141849,
+    "balanced_accuracy": 0.5578883386160319,
+    "ddos_precision": 0.6577725071647396,
+    "ddos_recall": 0.36392892013278655,
+    "ddos_f1": 0.468595681340454,
+    "false_alarm_rate": 0.2481522429007227,
+    "false_alarms": 24241,
+    "missed_ddos": 81433,
+    "detected_ddos": 46592,
+    "evaluated_rows": 225711
+  },
+  "always_ddos_reference": {
+    "labels": [
+      "Benign",
+      "DDoS"
+    ],
+    "confusion_matrix": [
+      [
+        0,
+        97686
+      ],
+      [
+        0,
+        128025
+      ]
+    ],
+    "accuracy": 0.5672076239084493,
+    "balanced_accuracy": 0.5,
+    "ddos_precision": 0.5672076239084493,
+    "ddos_recall": 1.0,
+    "ddos_f1": 0.7238449012823123,
+    "false_alarm_rate": 1.0,
+    "false_alarms": 97686,
+    "missed_ddos": 0,
+    "detected_ddos": 128025,
+    "evaluated_rows": 225711
+  },
+  "limitations": [
+    "Flow-level classification is incompatible with the live packet-window model.",
+    "The supplied CIC-DDoS2019 file's original provenance is unverified.",
+    "One external capture cannot establish performance on current live traffic.",
+    "The external dataset was used for evaluation, not model selection or tuning."
+  ]
+}
