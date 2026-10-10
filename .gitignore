@@ -19,6 +19,7 @@ env/
 *.pcapng
 data/raw/
 data/processed/
+Unicauca-dataset-April-June-2019-Network-flows.csv
 models/*.joblib
 models/*.pkl
 results/synthetic-demo*.json
