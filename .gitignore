@@ -21,6 +21,7 @@ data/raw/
 data/processed/
 models/*.joblib
 models/*.pkl
+results/synthetic-demo*.json
 
 # Local runtime data
 *.db

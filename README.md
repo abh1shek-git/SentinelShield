@@ -10,7 +10,8 @@ SentinelShield is a student project exploring cautious, flow-based detection of 
 - Packet capture is live and starts immediately when either script is run. It may require Npcap and elevated permissions on Windows. Do not run it on networks you are not authorized to monitor.
 - Offline PCAP metadata reading, labelled synthetic scenarios, and fixed-window aggregate features are implemented and covered by unit tests.
 - The interpretable rule detector and adaptive packet-rate baseline are implemented and tested.
-- ML, persistence, dashboard, and live capture integration have not yet been implemented.
+- The supervised Random Forest training, holdout evaluation, versioned model artifact, and inference path are implemented. Synthetic data is available only as a clearly marked pipeline demo.
+- SQLite persistence, dashboard, and live capture integration have not yet been implemented.
 
 The misspelled legacy filename `traffice_counter.py` is retained for now so existing work is preserved. It will be renamed only alongside an intentional migration step.
 
@@ -35,7 +36,7 @@ docs/
 1. Repository foundation and audit (current step).
 2. Offline and synthetic collection with deterministic feature extraction.
 3. Interpretable rule-based detection and adaptive baseline (implemented).
-4. Reproducible ML training, inference, and evaluation.
+4. Reproducible ML training, inference, and evaluation (initial pipeline implemented).
 5. SQLite event storage and simulated, expiring blocklist.
 6. Streamlit and Plotly dashboard.
 7. Optional, opt-in live capture.
@@ -49,11 +50,27 @@ The core pipeline will be developed and verified before live capture or firewall
 
 `sentinelshield.detection.RuleBasedDetector` compares packet rate with a rolling median/MAD baseline after a configurable warm-up. Before warm-up, it uses an absolute configurable rate floor. Only windows considered normal enter the baseline. High rate alone is labeled `Unusual Traffic`; a high initial-SYN ratio/rate alone is `Suspicious TCP SYN Pattern`; only both together produce the cautious label `Potential DDoS Activity`. Defaults are starting values and have not been calibrated on a real labeled dataset.
 
+The initial supervised ML path trains a Random Forest from a labeled feature CSV and reports stratified holdout accuracy, weighted precision/recall/F1, and a confusion matrix. A deterministic synthetic demo dataset is available for checking the training and inference code; its results are explicitly marked synthetic and do not describe real-world detection quality. Models store a feature schema version and dataset provenance.
+
 Run the unit tests with:
 
 ```powershell
 python -m unittest discover -s tests -v
 ```
+
+Train a clearly labeled synthetic demonstration model and write a local metrics file:
+
+```powershell
+python -m sentinelshield.evaluation.train --synthetic-demo --model models/synthetic-demo.joblib --metrics results/synthetic-demo.json
+```
+
+To train from measured labeled windows, provide a CSV containing all feature columns in `sentinelshield.evaluation.model.FEATURE_COLUMNS` plus a `label` column:
+
+```powershell
+python -m sentinelshield.evaluation.train --input-csv data/processed/labeled_windows.csv --model models/traffic-model.joblib --metrics results/traffic-model.json
+```
+
+Only load model artifacts you created or trust; Joblib uses Python object serialization. A model trained on synthetic or unrepresentative data is not evidence that it will detect real attacks.
 
 ## Environment
 
