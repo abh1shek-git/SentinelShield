@@ -12,7 +12,8 @@ SentinelShield is a student project exploring cautious, flow-based detection of 
 - The interpretable rule detector and adaptive packet-rate baseline are implemented and tested.
 - The supervised Random Forest training, holdout evaluation, versioned model artifact, and inference path are implemented. Synthetic data is available only as a clearly marked pipeline demo.
 - SQLite persists aggregate windows, deduplicated alerts, and simulation-only expiring block entries.
-- Dashboard and live capture integration have not yet been implemented.
+- The Streamlit dashboard displays synthetic and uploaded offline traffic, rules, optional synthetic-only ML comparison, stored alerts, and simulation-only block entries.
+- Live capture integration has not yet been implemented.
 
 The misspelled legacy filename `traffice_counter.py` is retained for now so existing work is preserved. It will be renamed only alongside an intentional migration step.
 
@@ -39,7 +40,7 @@ docs/
 3. Interpretable rule-based detection and adaptive baseline (implemented).
 4. Reproducible ML training, inference, and evaluation (initial pipeline implemented).
 5. SQLite event storage and simulated, expiring blocklist (implemented).
-6. Streamlit and Plotly dashboard.
+6. Streamlit and Plotly dashboard (initial integration implemented).
 7. Optional, opt-in live capture.
 8. Evaluation, demonstration instructions, and complete technical documentation.
 
@@ -67,6 +68,14 @@ Train a clearly labeled synthetic demonstration model and write a local metrics 
 python -m sentinelshield.evaluation.train --synthetic-demo --model models/synthetic-demo.joblib --metrics results/synthetic-demo.json
 ```
 
+Launch the dashboard after installing project dependencies:
+
+```powershell
+python -m streamlit run sentinelshield/dashboard/app.py
+```
+
+The dashboard defaults to a local synthetic demonstration. You can switch to an authorized offline PCAP/PCAPNG upload. Uploaded capture bytes are parsed via a temporary file and are not copied into SQLite. The optional ML comparison trains a clearly labeled synthetic-only model in memory. The simulated block control only records a database entry; it never changes firewall or network settings.
+
 To train from measured labeled windows, provide a CSV containing all feature columns in `sentinelshield.evaluation.model.FEATURE_COLUMNS` plus a `label` column:
 
 ```powershell
@@ -77,16 +86,16 @@ Only load model artifacts you created or trust; Joblib uses Python object serial
 
 ## Environment
 
-The current machine has Python 3.14.3, Scapy, Pandas, NumPy, and scikit-learn available. pytest, FastAPI, Streamlit, and Plotly were not found in the current environment during the initial audit. Install project dependencies in a virtual environment using the commands below. The initial code does not yet use these dependencies.
+The current machine has Python 3.14.3, Scapy, Pandas, NumPy, and scikit-learn available. The global Python 3.11 environment contains Streamlit 1.53.1 but no Plotly; the project requires Streamlit 1.57 or newer and installs the dashboard dependencies in a virtual environment.
 
 ```powershell
-py -3.12 -m venv .venv
+py -3.14 -m venv .venv --system-site-packages
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
 ```
 
-Python 3.12 is the initial supported target for broad compatibility with the selected networking and dashboard libraries. Dependency resolution on the current Python 3.14 installation has not yet been verified.
+Python 3.12–3.14 are the supported targets. The project virtual environment keeps its dashboard dependencies separate from global Python packages.
 
 ## Run current scripts
 

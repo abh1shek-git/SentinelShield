@@ -28,3 +28,4 @@ results/synthetic-demo*.json
 *.sqlite
 *.sqlite3
 logs/
+.streamlit/secrets.toml

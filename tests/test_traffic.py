@@ -6,7 +6,10 @@ from scapy.layers.inet import IP, TCP, UDP
 from scapy.packet import Raw
 from scapy.utils import PcapNgWriter, wrpcap
 
-from sentinelshield.collection.synthetic import make_synthetic_scenario
+from sentinelshield.collection.synthetic import (
+    make_synthetic_scenario,
+    make_synthetic_stream,
+)
 from sentinelshield.processing.traffic import (
     PacketRecord,
     aggregate_windows,
@@ -109,6 +112,20 @@ class WindowAggregationTests(unittest.TestCase):
     def test_rejects_unknown_scenario(self):
         with self.assertRaises(ValueError):
             make_synthetic_scenario("real_attack")
+
+    def test_dashboard_stream_has_deterministic_controlled_phases(self):
+        first = make_synthetic_stream()
+        second = make_synthetic_stream()
+        self.assertEqual(first, second)
+        windows = aggregate_windows(first)
+        self.assertEqual(len(windows), 30)
+        self.assertTrue(all(window.source_kind == "synthetic" for window in windows))
+        self.assertLess(windows[0].packets_per_second, 100)
+        self.assertGreater(windows[8].packets_per_second, 100)
+        self.assertLess(windows[14].packets_per_second, 100)
+        self.assertGreater(windows[14].syn_ratio, 0.7)
+        self.assertGreater(windows[20].packets_per_second, 100)
+        self.assertGreater(windows[20].syn_ratio, 0.7)
 
 
 if __name__ == "__main__":
