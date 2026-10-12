@@ -28,12 +28,20 @@ It uses the same `read_pcap` and `aggregate_windows` functions as SentinelShield
 
 At five-second windows, these samples yielded **567 nonempty windows**: 247 benign, 1 DNS, 1 SYN flood, 159 UDP lag, and 159 WebDDoS. The UDP lag sample has a roughly 28-day gap between portions of its packet timestamps. File-level attack names are coarse labels and may not describe every packet or window. These excerpts cannot support an independent model score: there is only one benign capture, and two attack captures provide just one window each. Do not use a random window split to claim DDoS accuracy on this derived CSV.
 
+Check capture-group readiness with:
+
+```powershell
+.\.venv\Scripts\python.exe -m sentinelshield.evaluation.capture_evaluation --input-csv data/processed/lucid-windows.csv --report results/lucid-capture-readiness.json
+```
+
+The [readiness report](../results/lucid-capture-readiness.json) counts captures per label and records why a whole-capture evaluation is currently blocked. It reports no accuracy or recall score. When enough independently collected, accurately labeled captures are available, this command can hold out whole captures by adding one or more `--eval-capture-id` options. Capture IDs must represent independent collections; distinct filenames alone do not establish independence.
+
 ## Preparation rules
 
 1. Preserve the original labels and source filenames in a local manifest. Make any mapping into SentinelShield labels explicit and reviewable.
 2. Use flow-level data only in its separate flow-model schema. Do not infer packet flags or timing details that a flow file does not contain.
 3. For window-level training, use packet captures with explicit capture or time-range labels. Document how mixed windows are labeled or excluded.
-4. Split by independent capture/day before fitting. The current packet-window trainer only supports a stratified random row split, so it cannot yet produce leakage-resistant evaluation for correlated windows.
+4. Split by independent capture/day before fitting. Use the capture-aware evaluator with explicit held-out capture IDs. The older `train` command still uses a stratified random row split and rejects CSVs containing `capture_id`.
 5. Keep the Unicauca application categories separate from DDoS attack labels. They may later help describe benign traffic diversity, but they cannot substitute for labeled attack examples.
 
 The next data requirement is more independently collected benign and attack captures with precise label intervals. The five excerpts establish that the packet-window extraction path works on real PCAPs; they do not establish detection performance.

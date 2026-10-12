@@ -1,0 +1,42 @@
+{
+  "kind": "packet_window_capture_readiness",
+  "feature_schema_version": 1,
+  "input_csv": "data\\processed\\lucid-windows.csv",
+  "input_sha256": "2f2039abf156b87e5ed8cfcd648a2ff40e069055e33329f1d5addd0acdcb63ce",
+  "total_windows": 567,
+  "capture_count": 5,
+  "label_window_counts": {
+    "DDoS": 320,
+    "Benign": 247
+  },
+  "label_capture_counts": {
+    "Benign": 1,
+    "DDoS": 4
+  },
+  "capture_label_window_counts": {
+    "CIC-DDoS-2019-Benign": {
+      "Benign": 247
+    },
+    "CIC-DDoS-2019-DNS": {
+      "DDoS": 1
+    },
+    "CIC-DDoS-2019-SynFlood": {
+      "DDoS": 1
+    },
+    "CIC-DDoS-2019-UDPLag": {
+      "DDoS": 159
+    },
+    "CIC-DDoS-2019-WebDDoS": {
+      "DDoS": 159
+    }
+  },
+  "structurally_eligible_for_capture_holdout": false,
+  "blockers": [
+    "Label 'Benign' occurs in only 1 capture(s); at least two separate captures are needed for a held-out evaluation."
+  ],
+  "cautions": [
+    "Capture IDs must represent independent collections; this cannot be proven from CSV columns.",
+    "File-level labels may not describe every packet or window in a capture.",
+    "The current LUCID files are excerpts, so a future score needs provenance and label review."
+  ]
+}

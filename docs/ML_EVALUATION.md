@@ -21,7 +21,7 @@ Run the synthetic pipeline check or train from a CSV with these commands:
 
 The CSV must contain all 21 numeric feature columns and `label`. An optional `source_kind` column is copied into provenance metadata and is not used as a feature. If omitted, the CLI marks provenance as `unspecified_csv_provenance`; do not treat that as verified real data. Synthetic outputs and local model artifacts are ignored by Git.
 
-For reliable research evaluation, ensure related flows/captures do not appear in both train and test partitions. A random row split can leak capture-specific patterns when rows from the same time series are correlated. This initial pipeline does not yet support grouped or time-based splitting, so its metrics are only a first-stage check and can be optimistic for real captures.
+For reliable research evaluation, ensure related flows/captures do not appear in both train and test partitions. A random row split can leak capture-specific patterns when rows from the same time series are correlated. The `train` command still uses a random row split and rejects datasets with `capture_id`; use the separate capture-aware command below for real packet-window evaluation.
 
 ## Synthetic demo
 
@@ -35,11 +35,29 @@ Saved artifacts include a schema version, exact ordered feature list, model, and
 
 - A separate labeled-flow baseline has now been evaluated; its weak result does not validate the live packet-window model.
 - There are no measured live packet-window precision, recall, F1, false-positive, or false-negative results.
-- The random row split can overstate performance if correlated rows are present.
+- The synthetic trainer's random row split can overstate performance if correlated rows are present. The separate capture-aware command needs more independent labeled captures before it can produce a score on the current samples.
 - The demo data is deliberately separable and does not model diverse benign traffic or realistic attack variability.
-- No probability calibration, threshold selection, drift monitoring, grouped split, or time-based evaluation exists yet.
+- No probability calibration, threshold selection, drift monitoring, or time-based evaluation exists yet. A capture-aware holdout path exists but lacks enough independently labeled captures for a meaningful score.
 - The ML label is a learned pattern classification and must not be presented as confirmation that an attack occurred.
 - The dashboard's optional ML comparison trains the bundled synthetic dataset in memory. It does not load a user-trained CSV model; user-trained artifacts are currently produced for separate evaluation/inference workflows.
+
+## Capture-aware packet-window evaluation
+
+The packet-window evaluator reads the same 21 features used by the dashboard, plus `label` and `capture_id`. It first checks that each label appears in at least two capture IDs and writes a readiness report:
+
+```powershell
+.\.venv\Scripts\python.exe -m sentinelshield.evaluation.capture_evaluation --input-csv data/processed/lucid-windows.csv --report results/lucid-capture-readiness.json
+```
+
+The five LUCID excerpts fail this check because all benign windows come from one capture. The [report](../results/lucid-capture-readiness.json) has no model score. Having two filenames per label is only a structural minimum; capture independence and window labels still require a separate provenance review.
+
+Once suitable captures are available, choose a complete held-out capture set explicitly:
+
+```powershell
+.\.venv\Scripts\python.exe -m sentinelshield.evaluation.capture_evaluation --input-csv data/processed/labeled-windows.csv --eval-capture-id held-out-benign --eval-capture-id held-out-attack --report results/capture-evaluation.json --model models/capture-evaluation.joblib
+```
+
+The command keeps every window from each selected capture out of training, refuses splits missing a label on either side, and records the exact capture IDs, class metrics, confusion matrix, and dataset hash. It cannot prove that distinct captures are independent or that filename labels correctly describe every window. The saved model remains an evaluation artifact; the dashboard still uses only the synthetic ML comparison.
 
 ## Cross-dataset flow baseline
 
@@ -83,4 +101,4 @@ After recording that held-out result, inspection found median forward and backwa
 
 ## Before reporting a real-data result
 
-Keep a record of the capture source, collection period, environment, label definitions, and exclusions. Have labels assigned independently of this model's predictions. Partition by capture, scenario, or time before training so adjacent windows from the same trace cannot land in both sets. The packet-window training CLI supports only a stratified random row split; it rejects CSVs with a `capture_id` column because their correlated windows require capture-aware evaluation. Use random-split metrics only as a first-stage check, and do not describe them as leakage-resistant research results. The separate flow baseline uses one training dataset and one external evaluation dataset. Report per-class errors and false alarms alongside aggregate scores when extending the evaluation.
+Keep a record of the capture source, collection period, environment, label definitions, and exclusions. Have labels assigned independently of this model's predictions. Partition by capture, scenario, or time before training so adjacent windows from the same trace cannot land in both sets. The `train` CLI supports only a stratified random row split; it rejects CSVs with a `capture_id` column. Use the separate capture-aware evaluator for held-out packet captures, and do not describe random-row metrics as leakage-resistant research results. The separate flow baseline uses one training dataset and one external evaluation dataset. Report per-class errors and false alarms alongside aggregate scores when extending the evaluation.

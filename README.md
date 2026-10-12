@@ -1,6 +1,6 @@
 # SentinelShield
 
-SentinelShield is aproject exploring cautious detection of unusual network traffic. It is being built incrementally and now includes packet-window processing, explainable rules, a dashboard, and experimental ML evaluation.
+SentinelShield is a project exploring cautious detection of unusual network traffic. It is being built incrementally and now includes packet-window processing, explainable rules, a dashboard, and experimental ML evaluation.
 
 **New to the project?** Follow [Start here](START_HERE.md) for a short dashboard demonstration and a plain-English explanation of the results.
 
@@ -20,6 +20,7 @@ SentinelShield is aproject exploring cautious detection of unusual network traff
 - A reproducible comparison found substantial feature distribution differences between the two flow datasets; see [the evaluation notes](docs/ML_EVALUATION.md).
 - A third, held-out 2018 capture exposed near-zero DDoS recall for a model trained on both earlier files. Real-data models remain out of the dashboard.
 - Five small CIC-DDoS2019 PCAP excerpts have been converted into the live detector's 21-feature windows. They are an extraction and label-audit sample, not a valid training benchmark.
+- A capture-aware packet-window evaluator now keeps complete captures separate and records [readiness](results/lucid-capture-readiness.json). The five excerpts cannot produce a valid holdout score because only one benign capture is available.
 
 The misspelled legacy filename `traffice_counter.py` is retained for now so existing work is preserved. It will be renamed only alongside an intentional migration step.
 
