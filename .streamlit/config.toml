@@ -1,29 +1,32 @@
 [theme]
 base = "dark"
-primaryColor = "#61afef"
-backgroundColor = "#282c34"
-secondaryBackgroundColor = "#21252b"
-codeBackgroundColor = "#1e2127"
-textColor = "#abb2bf"
-linkColor = "#61afef"
-borderColor = "#3e4451"
+primaryColor = "#2563eb"
+backgroundColor = "#0b1220"
+secondaryBackgroundColor = "#172235"
+codeBackgroundColor = "#101a2b"
+textColor = "#eaf2ff"
+linkColor = "#67e8f9"
+borderColor = "#2b3b52"
+dataframeBorderColor = "#2b3b52"
+dataframeHeaderBackgroundColor = "#1d2b43"
+dataframeHeaderTextColor = "#eaf2ff"
 showWidgetBorder = true
 showSidebarBorder = true
-baseRadius = "6px"
-buttonRadius = "6px"
-font = "sans serif"
+baseRadius = "12px"
+buttonRadius = "10px"
+font = "sans-serif"
 codeFont = "monospace"
-baseFontSize = 14
+baseFontSize = 16
 baseFontWeight = 400
-headingFontSizes = ["30px", "24px", "20px", "16px", "14px", "12px"]
-headingFontWeights = [600, 600, 500, 500, 500, 500]
-chartCategoricalColors = ["#61afef", "#98c379", "#e5c07b", "#e06c75", "#c678dd", "#56b6c2", "#d19a66"]
+headingFontSizes = ["36px", "26px", "21px", "18px", "16px", "14px"]
+headingFontWeights = [700, 650, 600, 600, 550, 500]
+chartCategoricalColors = ["#22d3ee", "#fbbf24", "#a78bfa", "#34d399", "#fb7185", "#60a5fa", "#f472b6"]
 
 [theme.sidebar]
-backgroundColor = "#21252b"
-secondaryBackgroundColor = "#282c34"
-codeBackgroundColor = "#1e2127"
-borderColor = "#3e4451"
+backgroundColor = "#101a2b"
+secondaryBackgroundColor = "#1b2940"
+codeBackgroundColor = "#0b1220"
+borderColor = "#2b3b52"
 
 [server]
 maxUploadSize = 50
