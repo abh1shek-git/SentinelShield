@@ -300,14 +300,14 @@ def main() -> None:
         go.Scatter(
             x=frame["window_number"], y=frame["packets_per_second"],
             mode="lines+markers", name="Observed packet rate",
-            line={"color": "#91ad9b", "width": 2},
+            line={"color": "#d46a1c", "width": 2},
         )
     )
     rate_chart.add_trace(
         go.Scatter(
             x=frame["window_number"], y=frame["adaptive_rate_threshold_pps"],
             mode="lines", name="Current rule threshold",
-            line={"color": "#b9a17c", "dash": "dash", "width": 2},
+            line={"color": "#ffffff", "dash": "dash", "width": 2},
         )
     )
     rate_chart.update_layout(
@@ -331,11 +331,11 @@ def main() -> None:
             go.Scatter(
                 x=frame["window_number"], y=frame["syn_ratio"],
                 mode="lines+markers", name="Initial SYN ratio",
-                line={"color": "#a6a6a0", "width": 2},
+                line={"color": "#d46a1c", "width": 2},
             )
         )
         syn_chart.add_hline(
-            y=float(suspicious_syn_ratio), line_dash="dash", line_color="#b9a17c",
+            y=float(suspicious_syn_ratio), line_dash="dash", line_color="#ffffff",
             annotation_text="Configured SYN ratio floor",
         )
         syn_chart.update_layout(
