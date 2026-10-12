@@ -111,11 +111,8 @@ def main() -> None:
         initial_sidebar_state="collapsed",
     )
 
-    with st.container(border=True):
-        st.caption("NETWORK TRAFFIC MONITOR")
-        st.title("SentinelShield", icon=":material/security:")
-        st.caption("Inspect traffic patterns and see why SentinelShield flags them.")
-        st.badge("Research prototype", color="blue", icon=":material/science:")
+    st.title("SentinelShield")
+    st.caption("Inspect traffic patterns and see why SentinelShield flags them.")
     source_mode = st.segmented_control(
         "Choose a traffic source",
         ["Try a demo", "Upload a capture", "Capture live traffic"],
@@ -125,7 +122,7 @@ def main() -> None:
     )
 
     with st.sidebar:
-        st.header("Advanced settings", icon=":material/tune:")
+        st.header("Advanced settings")
         st.caption("The defaults are starting values, not validated attack thresholds.")
         window_seconds = st.select_slider(
             "Aggregation window",
@@ -281,19 +278,16 @@ def main() -> None:
             f"Potential DDoS pattern in {potential_count} of {len(features)} windows. "
             "Both packet rate and initial TCP SYN activity crossed their rules. "
             "Investigate further; this is not confirmation of an attack.",
-            icon=":material/warning:",
         )
     elif alert_count:
         st.info(
             f"Unusual activity in {alert_count} of {len(features)} windows. "
             "A packet-rate or initial-SYN rule was triggered. See details for the reasons.",
-            icon=":material/monitor_heart:",
         )
     else:
         st.success(
             f"No rule alerts in these {len(features)} windows. "
             "This does not establish that the traffic is safe.",
-            icon=":material/check_circle:",
         )
 
     with st.container(horizontal=True):
@@ -306,15 +300,14 @@ def main() -> None:
         go.Scatter(
             x=frame["window_number"], y=frame["packets_per_second"],
             mode="lines+markers", name="Observed packet rate",
-            line={"color": "#22d3ee", "width": 3},
-            fill="tozeroy", fillcolor="rgba(34, 211, 238, 0.10)",
+            line={"color": "#91ad9b", "width": 2},
         )
     )
     rate_chart.add_trace(
         go.Scatter(
             x=frame["window_number"], y=frame["adaptive_rate_threshold_pps"],
             mode="lines", name="Current rule threshold",
-            line={"color": "#fbbf24", "dash": "dash", "width": 2},
+            line={"color": "#b9a17c", "dash": "dash", "width": 2},
         )
     )
     rate_chart.update_layout(
@@ -325,25 +318,24 @@ def main() -> None:
         legend={"orientation": "h", "y": 1.12},
         margin={"l": 10, "r": 10, "t": 65, "b": 10},
     )
-    with st.container(border=True):
-        st.plotly_chart(
-            rate_chart,
-            width="stretch",
-            alt="Observed packet rate and the current adaptive threshold across traffic windows.",
-        )
+    st.plotly_chart(
+        rate_chart,
+        width="stretch",
+        alt="Observed packet rate and the current adaptive threshold across traffic windows.",
+    )
 
-    with st.expander("See detailed analysis", expanded=False, icon=":material/analytics:"):
+    with st.expander("See detailed analysis", expanded=False):
         st.caption("This shows the share of initial TCP SYN packets in each window.")
         syn_chart = go.Figure()
         syn_chart.add_trace(
             go.Scatter(
                 x=frame["window_number"], y=frame["syn_ratio"],
                 mode="lines+markers", name="Initial SYN ratio",
-                line={"color": "#a78bfa", "width": 3},
+                line={"color": "#a6a6a0", "width": 2},
             )
         )
         syn_chart.add_hline(
-            y=float(suspicious_syn_ratio), line_dash="dash", line_color="#fbbf24",
+            y=float(suspicious_syn_ratio), line_dash="dash", line_color="#b9a17c",
             annotation_text="Configured SYN ratio floor",
         )
         syn_chart.update_layout(
@@ -392,7 +384,7 @@ def main() -> None:
                 "these scores are a pipeline check, not measured real-world performance."
             )
 
-    with st.expander("See window decisions and reasons", expanded=False, icon=":material/table_chart:"):
+    with st.expander("See window decisions and reasons", expanded=False):
         st.subheader("Window decisions")
         display_columns = [
             "window_number", "packets_per_second", "bytes_per_second", "syn_ratio",
@@ -429,7 +421,7 @@ def main() -> None:
                 alt="Current traffic windows that triggered a detection rule and why.",
             )
 
-    with st.expander("Temporary block simulation", expanded=False, icon=":material/shield:"):
+    with st.expander("Temporary block simulation", expanded=False):
         st.caption("Records an expiring simulated decision. No network or firewall changes occur.")
         if source_ips:
             selected_ip = st.selectbox(
@@ -461,7 +453,7 @@ def main() -> None:
         else:
             st.caption("No active simulated entries.")
 
-    with st.expander("Recent stored alerts", expanded=False, icon=":material/history:"):
+    with st.expander("Recent stored alerts", expanded=False):
         stored_alerts = store.list_detection_events(limit=10)
         if stored_alerts:
             st.dataframe(

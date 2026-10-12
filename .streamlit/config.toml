@@ -1,32 +1,36 @@
 [theme]
 base = "dark"
-primaryColor = "#2563eb"
-backgroundColor = "#0b1220"
-secondaryBackgroundColor = "#172235"
-codeBackgroundColor = "#101a2b"
-textColor = "#eaf2ff"
-linkColor = "#67e8f9"
-borderColor = "#2b3b52"
-dataframeBorderColor = "#2b3b52"
-dataframeHeaderBackgroundColor = "#1d2b43"
-dataframeHeaderTextColor = "#eaf2ff"
+primaryColor = "#536f63"
+backgroundColor = "#151816"
+secondaryBackgroundColor = "#222723"
+codeBackgroundColor = "#1b201c"
+textColor = "#e9e9e3"
+linkColor = "#a6bfae"
+borderColor = "#383f3a"
+dataframeBorderColor = "#383f3a"
+dataframeHeaderBackgroundColor = "#292f2a"
+dataframeHeaderTextColor = "#e9e9e3"
+greenColor = "#739782"
+orangeColor = "#b28d5f"
+blueColor = "#7f9ca0"
+redColor = "#b67b77"
 showWidgetBorder = true
 showSidebarBorder = true
-baseRadius = "12px"
-buttonRadius = "10px"
+baseRadius = "6px"
+buttonRadius = "6px"
 font = "sans-serif"
 codeFont = "monospace"
 baseFontSize = 16
 baseFontWeight = 400
-headingFontSizes = ["36px", "26px", "21px", "18px", "16px", "14px"]
-headingFontWeights = [700, 650, 600, 600, 550, 500]
-chartCategoricalColors = ["#22d3ee", "#fbbf24", "#a78bfa", "#34d399", "#fb7185", "#60a5fa", "#f472b6"]
+headingFontSizes = ["32px", "24px", "20px", "17px", "15px", "14px"]
+headingFontWeights = [650, 600, 600, 550, 500, 500]
+chartCategoricalColors = ["#91ad9b", "#b9a17c", "#a6a6a0", "#82959d", "#b7857f"]
 
 [theme.sidebar]
-backgroundColor = "#101a2b"
-secondaryBackgroundColor = "#1b2940"
-codeBackgroundColor = "#0b1220"
-borderColor = "#2b3b52"
+backgroundColor = "#1a1e1b"
+secondaryBackgroundColor = "#252b26"
+codeBackgroundColor = "#151816"
+borderColor = "#383f3a"
 
 [server]
 maxUploadSize = 50
