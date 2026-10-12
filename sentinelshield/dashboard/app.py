@@ -108,34 +108,28 @@ def main() -> None:
         page_title="SentinelShield | Traffic Monitor",
         page_icon=":material/security:",
         layout="wide",
-        initial_sidebar_state="expanded",
+        initial_sidebar_state="collapsed",
     )
 
     st.title("SentinelShield")
-    st.caption(
-        "Flow-window traffic monitoring · interpretable rules · simulation-only mitigation"
+    st.caption("Inspect traffic patterns and see why SentinelShield flags them.")
+    source_mode = st.segmented_control(
+        "Choose a traffic source",
+        ["Try a demo", "Upload a capture", "Capture live traffic"],
+        default="Try a demo",
+        required=True,
+        key="traffic_source_choice",
     )
 
     with st.sidebar:
-        st.header("Traffic source")
-        source_mode = st.radio(
-            "Choose input",
-            [
-                "Synthetic demonstration",
-                "Offline PCAP / PCAPNG",
-                "Live capture (opt-in)",
-            ],
-            index=0,
-            key="source_mode",
-        )
+        st.header("Advanced settings")
+        st.caption("The defaults are starting values, not validated attack thresholds.")
         window_seconds = st.select_slider(
             "Aggregation window",
             options=[1.0, 2.0, 5.0, 10.0],
             value=5.0,
             format_func=lambda value: f"{value:g} seconds",
         )
-        st.divider()
-        st.header("Detection sensitivity")
         minimum_unusual_pps = st.number_input(
             "Unusual traffic floor (PPS)", min_value=1.0, max_value=100_000.0,
             value=100.0, step=10.0,
@@ -153,8 +147,6 @@ def main() -> None:
             "Compare with synthetic-trained ML demo", value=False,
             help="This model was trained only on hand-designed synthetic examples. Its predictions and metrics are not validated on real captures.",
         )
-        st.divider()
-        st.info("Live capture is available only after explicit authorization and a button click.")
 
     config = DetectionConfig(
         minimum_unusual_pps=float(minimum_unusual_pps),
@@ -165,9 +157,9 @@ def main() -> None:
     features: list[TrafficWindowFeatures] = []
     source_ips: list[str] = []
     input_ready = False
-    if source_mode == "Synthetic demonstration":
-        demo_scenario = st.sidebar.selectbox(
-            "Synthetic traffic pattern",
+    if source_mode == "Try a demo":
+        demo_scenario = st.selectbox(
+            "Choose a demo traffic pattern",
             ["Mixed demonstration", "Normal only", "SYN-heavy windows"],
             key="demo_scenario",
         )
@@ -185,7 +177,7 @@ def main() -> None:
             "real network observation, or attack benchmark."
         )
     else:
-        if source_mode == "Offline PCAP / PCAPNG":
+        if source_mode == "Upload a capture":
             uploaded_file = st.file_uploader(
                 "Select an authorized PCAP or PCAPNG file",
                 type=["pcap", "pcapng"],
@@ -264,7 +256,7 @@ def main() -> None:
                 st.info("No capture interfaces were found. Check Npcap and Scapy setup.")
 
     if not input_ready:
-        st.warning("Choose a traffic source to populate the dashboard.")
+        st.info("Choose a capture file or start a bounded live capture to see results.")
         return
     if not features:
         st.info("No IPv4 or IPv6 packets were found in this input.")
@@ -281,59 +273,59 @@ def main() -> None:
     potential_count = sum(
         result.label == "Potential DDoS Activity" for result in detections
     )
-    total_packets = sum(window.packet_count for window in features)
-    latest_rate = features[-1].packets_per_second
-    with st.container(horizontal=True):
-        st.metric("Traffic windows", f"{len(features):,}", border=True)
-        st.metric("Packets processed", f"{total_packets:,}", border=True)
-        st.metric("Latest window rate", f"{latest_rate:,.1f} PPS", border=True)
-        st.metric(
-            "Alerts / potential events", f"{alert_count} / {potential_count}",
-            border=True,
-        )
-
     if potential_count:
         st.warning(
-            f"{potential_count} window(s) met both the rate and SYN rules. "
-            "This is Potential DDoS Activity, not confirmation of an attack."
+            f"Potential DDoS pattern in {potential_count} of {len(features)} windows. "
+            "Both packet rate and initial TCP SYN activity crossed their rules. "
+            "Investigate further; this is not confirmation of an attack."
         )
     elif alert_count:
-        st.info(f"{alert_count} window(s) were flagged for unusual or SYN-pattern traffic.")
+        st.info(
+            f"Unusual activity in {alert_count} of {len(features)} windows. "
+            "A packet-rate or initial-SYN rule was triggered. See details for the reasons."
+        )
     else:
-        st.success("No configured rule conditions were met in these windows.")
-
-    chart_column, ratio_column = st.columns(2)
-    with chart_column:
-        rate_chart = go.Figure()
-        rate_chart.add_trace(
-            go.Scatter(
-                x=frame["window_number"], y=frame["packets_per_second"],
-                mode="lines+markers", name="Observed PPS",
-                line={"color": "#43d9c2", "width": 2},
-            )
-        )
-        rate_chart.add_trace(
-            go.Scatter(
-                x=frame["window_number"], y=frame["adaptive_rate_threshold_pps"],
-                mode="lines", name="Current rule threshold",
-                line={"color": "#f5a742", "dash": "dash", "width": 2},
-            )
-        )
-        rate_chart.update_layout(
-            title="Packet rate and adaptive threshold",
-            xaxis_title="Window number (capture order)",
-            yaxis_title="Packets per second",
-            hovermode="x unified",
-            legend={"orientation": "h", "y": 1.12},
-            margin={"l": 10, "r": 10, "t": 65, "b": 10},
-        )
-        st.plotly_chart(
-            rate_chart,
-            width="stretch",
-            alt="Observed packet rate and the current adaptive threshold across traffic windows.",
+        st.success(
+            f"No rule alerts in these {len(features)} windows. "
+            "This does not establish that the traffic is safe."
         )
 
-    with ratio_column:
+    with st.container(horizontal=True):
+        st.metric("Windows analyzed", f"{len(features):,}", border=True)
+        st.metric("Windows flagged", f"{alert_count:,}", border=True)
+        st.metric("Packets processed", f"{sum(window.packet_count for window in features):,}", border=True)
+
+    rate_chart = go.Figure()
+    rate_chart.add_trace(
+        go.Scatter(
+            x=frame["window_number"], y=frame["packets_per_second"],
+            mode="lines+markers", name="Observed packet rate",
+            line={"color": "#43d9c2", "width": 2},
+        )
+    )
+    rate_chart.add_trace(
+        go.Scatter(
+            x=frame["window_number"], y=frame["adaptive_rate_threshold_pps"],
+            mode="lines", name="Current rule threshold",
+            line={"color": "#f5a742", "dash": "dash", "width": 2},
+        )
+    )
+    rate_chart.update_layout(
+        title="Packet rate over time",
+        xaxis_title="Window number (capture order)",
+        yaxis_title="Packets per second",
+        hovermode="x unified",
+        legend={"orientation": "h", "y": 1.12},
+        margin={"l": 10, "r": 10, "t": 65, "b": 10},
+    )
+    st.plotly_chart(
+        rate_chart,
+        width="stretch",
+        alt="Observed packet rate and the current adaptive threshold across traffic windows.",
+    )
+
+    with st.expander("See detailed analysis", expanded=False):
+        st.caption("This shows the share of initial TCP SYN packets in each window.")
         syn_chart = go.Figure()
         syn_chart.add_trace(
             go.Scatter(
@@ -392,46 +384,44 @@ def main() -> None:
                 "these scores are a pipeline check, not measured real-world performance."
             )
 
-    st.subheader("Window decisions")
-    display_columns = [
-        "window_number", "packets_per_second", "bytes_per_second", "syn_ratio",
-        "initial_syn_pps", "adaptive_rate_threshold_pps", "baseline_ready", "rule_label",
-    ]
-    if show_ml_comparison:
-        display_columns.append("ml_demo_label")
-    st.dataframe(
-        frame[display_columns],
-        hide_index=True,
-        width="stretch",
-        alt="Traffic window rates, TCP SYN signals, baseline status, and rule labels.",
-        column_config={
-            "window_number": st.column_config.NumberColumn("Window", format="%d"),
-            "packets_per_second": st.column_config.NumberColumn("Packets / sec", format="%.1f"),
-            "bytes_per_second": st.column_config.NumberColumn("Bytes / sec", format="%.0f"),
-            "syn_ratio": st.column_config.NumberColumn("Initial SYN ratio", format="%.1%"),
-            "initial_syn_pps": st.column_config.NumberColumn("Initial SYN / sec", format="%.1f"),
-            "adaptive_rate_threshold_pps": st.column_config.NumberColumn("Rate threshold", format="%.1f"),
-        },
-    )
-
-    st.subheader("Detection reasons")
-    alert_rows = frame.loc[frame["rule_label"] != "Normal", [
-        "window_number", "rule_label", "reasons", "source_kind"
-    ]]
-    if alert_rows.empty:
-        st.caption("No alert events in the current input.")
-    else:
+    with st.expander("See window decisions and reasons", expanded=False):
+        st.subheader("Window decisions")
+        display_columns = [
+            "window_number", "packets_per_second", "bytes_per_second", "syn_ratio",
+            "initial_syn_pps", "adaptive_rate_threshold_pps", "baseline_ready", "rule_label",
+        ]
+        if show_ml_comparison:
+            display_columns.append("ml_demo_label")
         st.dataframe(
-            alert_rows,
+            frame[display_columns],
             hide_index=True,
             width="stretch",
-            alt="Current traffic windows that triggered a detection rule and why.",
+            alt="Traffic window rates, TCP SYN signals, baseline status, and rule labels.",
+            column_config={
+                "window_number": st.column_config.NumberColumn("Window", format="%d"),
+                "packets_per_second": st.column_config.NumberColumn("Packets / sec", format="%.1f"),
+                "bytes_per_second": st.column_config.NumberColumn("Bytes / sec", format="%.0f"),
+                "syn_ratio": st.column_config.NumberColumn("Initial SYN ratio", format="%.1%"),
+                "initial_syn_pps": st.column_config.NumberColumn("Initial SYN / sec", format="%.1f"),
+                "adaptive_rate_threshold_pps": st.column_config.NumberColumn("Rate threshold", format="%.1f"),
+            },
         )
 
-    st.divider()
-    mitigation_column, history_column = st.columns([1, 1])
-    with mitigation_column:
-        st.subheader("Temporary block simulation")
+        st.subheader("Detection reasons")
+        alert_rows = frame.loc[frame["rule_label"] != "Normal", [
+            "window_number", "rule_label", "reasons", "source_kind"
+        ]]
+        if alert_rows.empty:
+            st.caption("No alert events in the current input.")
+        else:
+            st.dataframe(
+                alert_rows,
+                hide_index=True,
+                width="stretch",
+                alt="Current traffic windows that triggered a detection rule and why.",
+            )
+
+    with st.expander("Temporary block simulation", expanded=False):
         st.caption("Records an expiring simulated decision. No network or firewall changes occur.")
         if source_ips:
             selected_ip = st.selectbox(
@@ -463,8 +453,7 @@ def main() -> None:
         else:
             st.caption("No active simulated entries.")
 
-    with history_column:
-        st.subheader("Recent stored alerts")
+    with st.expander("Recent stored alerts", expanded=False):
         stored_alerts = store.list_detection_events(limit=10)
         if stored_alerts:
             st.dataframe(

@@ -12,12 +12,12 @@ The dashboard starts in synthetic demonstration mode. It does not start live cap
 
 ## Suggested walkthrough
 
-1. Leave **Synthetic demonstration** selected and review the traffic-rate chart, initial-SYN chart, rule labels, and detector reasons.
-2. Try **Mixed demonstration**, **Normal only**, and **SYN-heavy windows**. The generated stream is deterministic and explicitly marked synthetic.
-3. Turn on **Compare with synthetic-trained ML demo** only to demonstrate that the training/inference path works. Its scores are based on hand-designed synthetic data and are not evidence of real network performance.
-4. If you have an authorized capture file, choose **Offline PCAP / PCAPNG** and upload it. The file is parsed from a temporary directory; capture payloads are not saved in the project database.
+1. Leave **Try a demo** selected and review the result message and packet-rate chart. Open **See detailed analysis** and **See window decisions and reasons** for the initial-SYN chart, rule labels, and detector reasons.
+2. Try **Mixed demonstration**, **Normal only**, and **SYN-heavy windows** under **Choose a demo traffic pattern**. The generated stream is deterministic and explicitly marked synthetic.
+3. Open the sidebar **Advanced settings** and turn on **Compare with synthetic-trained ML demo** only to demonstrate that the training/inference path works. Its scores are based on hand-designed synthetic data and are not evidence of real network performance.
+4. If you have an authorized capture file, choose **Upload a capture** and upload a PCAP or PCAPNG file. The file is parsed from a temporary directory; capture payloads are not saved in the project database.
 5. For an authorized local interface, follow [live capture instructions](LIVE_CAPTURE.md). A capture requires the explicit authorization checkbox and button click.
-6. Optionally enter an IP in **Temporary block simulation**. This adds a simulated database record with an expiry; it does not change the firewall.
+6. Optionally open **Temporary block simulation** and select an IP. This adds a simulated database record with an expiry; it does not change the firewall.
 
 ## Interpreting results
 

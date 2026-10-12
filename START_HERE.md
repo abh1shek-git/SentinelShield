@@ -14,13 +14,13 @@ Open the local address Streamlit prints, usually `http://localhost:8501`.
 
 ## 2. Try three traffic patterns
 
-In the left sidebar, keep **Synthetic demonstration** selected. Under **Synthetic traffic pattern**, select each of these in turn:
+Keep **Try a demo** selected at the top of the page. Under **Choose a demo traffic pattern**, select each of these in turn:
 
 1. **Normal only** — the baseline example.
 2. **Mixed demonstration** — normal and unusual windows together.
 3. **SYN-heavy windows** — windows with many TCP connection attempts.
 
-Watch **Alerts / potential events**, the two charts, **Window decisions**, and **Detection reasons**. The dashboard updates when you change the pattern; there is no separate Run button.
+Watch the result message, **Windows flagged**, and the packet-rate chart. Open **See detailed analysis** and **See window decisions and reasons** when you want to inspect the SYN signal and each rule decision. The dashboard updates when you change the pattern; there is no separate Run button.
 
 ## 3. Read the result
 
@@ -37,8 +37,8 @@ SentinelShield groups packets into short time windows. It measures packet rate a
 
 ## After the basic demo
 
-- **Offline PCAP / PCAPNG** lets you inspect a capture you are authorized to use. Start with a small file; the dashboard loads the upload into memory.
-- **Compare with synthetic-trained ML demo** shows that the ML code runs. Its scores come from generated examples and do not measure real-world accuracy.
-- **Live capture (opt-in)** is a separate, bounded feature. See [live capture instructions](docs/LIVE_CAPTURE.md) before using it.
+- **Upload a capture** lets you inspect an authorized PCAP or PCAPNG file. Start with a small file; the dashboard loads the upload into memory.
+- **Advanced settings** in the sidebar include the optional synthetic-trained ML comparison. Its scores come from generated examples and do not measure real-world accuracy.
+- **Capture live traffic** is a separate, bounded feature that still requires an authorization checkbox and a button click. See [live capture instructions](docs/LIVE_CAPTURE.md) before using it.
 
 The next research step is collecting enough independently labeled packet captures to evaluate the live-compatible features. The current real-data model has weak results on a different dataset and is not used for dashboard predictions. Details are in [ML evaluation](docs/ML_EVALUATION.md).

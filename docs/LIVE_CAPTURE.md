@@ -5,7 +5,7 @@ The dashboard supports a single, explicitly started capture on a selected interf
 ## Start a capture
 
 1. Start the dashboard using the command in the [demo guide](DEMO_GUIDE.md).
-2. Choose **Live capture (opt-in)**.
+2. Choose **Capture live traffic**.
 3. Select an interface whose traffic you are authorized to monitor.
 4. Check the authorization statement and choose a duration from 5 to 60 seconds.
 5. Click **Start bounded capture**. The dashboard waits for that capture to finish before analyzing the results.
