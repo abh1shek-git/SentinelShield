@@ -21,6 +21,7 @@ SentinelShield is a project exploring cautious detection of unusual network traf
 - A third, held-out 2018 capture exposed near-zero DDoS recall for a model trained on both earlier files. Real-data models remain out of the dashboard.
 - Five small CIC-DDoS2019 PCAP excerpts have been converted into the live detector's 21-feature windows. They are an extraction and label-audit sample, not a valid training benchmark.
 - A capture-aware packet-window evaluator now keeps complete captures separate and records [readiness](results/lucid-capture-readiness.json). The five excerpts cannot produce a valid holdout score because only one benign capture is available.
+- A bounded extractor has sampled a pre-attack interval from the local 8.3 GB CIC-IDS2017 Thursday capture without loading the full file. Its [audit](results/cicids2017-thursday-pre-attack-audit.json) marks the benign label provisional; this does not unblock independent DDoS evaluation.
 
 The misspelled legacy filename `traffice_counter.py` is retained for now so existing work is preserved. It will be renamed only alongside an intentional migration step.
 

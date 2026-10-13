@@ -1,0 +1,27 @@
+{
+  "kind": "bounded_pcap_interval_preparation",
+  "capture": "Thursday-WorkingHours.pcap",
+  "capture_bytes": 8302500180,
+  "capture_id": "Thursday-WorkingHours",
+  "capture_sha256": null,
+  "capture_sha256_note": "Full multi-gigabyte capture was not hashed or scanned to its end.",
+  "source_url": "https://www.unb.ca/cic/datasets/ids-2017.html",
+  "start_utc": "2017-07-06T12:00:00+00:00",
+  "end_utc_exclusive": "2017-07-06T12:05:00+00:00",
+  "label": "Benign",
+  "label_note": "Provisional: before the first published Thursday attack; assumes America/Toronto daylight time and aligned capture clock. Not packet-level ground truth.",
+  "window_seconds": 5.0,
+  "windows": 56,
+  "packets_in_windows": 43910,
+  "first_window_start": 1499342400.0,
+  "last_window_start": 1499342695.0,
+  "output_csv": "data\\processed\\cicids2017-thursday-pre-attack-windows.csv",
+  "output_sha256": "ff73870b53cfc6ef63423f614765e58ce60b0a0aef0d5592d0eb59968351d67d",
+  "ready_for_independent_model_evaluation": false,
+  "limitations": [
+    "The interval label comes from an attack schedule, not packet-level ground truth.",
+    "Intervals from one capture remain one capture group, even if exported separately.",
+    "Only the selected interval was decoded; the rest of the file was not audited.",
+    "The interval ends at the first IP packet beyond its end time; this assumes capture timestamps are ordered."
+  ]
+}

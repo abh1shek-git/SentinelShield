@@ -36,6 +36,18 @@ Check capture-group readiness with:
 
 The [readiness report](../results/lucid-capture-readiness.json) counts captures per label and records why a whole-capture evaluation is currently blocked. It reports no accuracy or recall score. When enough independently collected, accurately labeled captures are available, this command can hold out whole captures by adding one or more `--eval-capture-id` options. Capture IDs must represent independent collections; distinct filenames alone do not establish independence.
 
+## Bounded extraction from the Thursday CIC-IDS2017 capture
+
+The local `Thursday-WorkingHours.pcap` is an 8.3 GB PCAPNG file despite its `.pcap` extension. The [CIC-IDS2017 schedule](https://www.unb.ca/cic/datasets/ids-2017.html) lists Thursday web attacks and infiltration, with its first listed Thursday attack at 09:20 local time. Thursday is therefore a mixed capture, not an all-benign or DDoS capture. The original file is Git-ignored.
+
+The `prepare_pcap_interval` command reads packets in timestamp order, retains one five-second window at a time, and stops at the requested end time. It requires explicit UTC boundaries and a label note. The following pre-attack interval assumes the capture clock corresponds to America/Toronto daylight time (08:00–08:05 local):
+
+```powershell
+.\.venv\Scripts\python.exe -m sentinelshield.evaluation.prepare_pcap_interval --capture Thursday-WorkingHours.pcap --start-utc 2017-07-06T12:00:00Z --end-utc 2017-07-06T12:05:00Z --label Benign --label-note "Provisional: before the first published Thursday attack; assumes America/Toronto daylight time and aligned capture clock. Not packet-level ground truth." --source-url https://www.unb.ca/cic/datasets/ids-2017.html --output-csv data/processed/cicids2017-thursday-pre-attack-windows.csv --audit results/cicids2017-thursday-pre-attack-audit.json
+```
+
+On the local copy this produced **56 nonempty windows from 43,910 IP packets**. The [audit](../results/cicids2017-thursday-pre-attack-audit.json) records the selected interval, provisional label, output hash, and limitations. The derived CSV remains local. This is a supplemental packet-window sample, not an independent accuracy benchmark. Its schedule-derived label needs further clock and flow-label checks before use in supervised training. Splitting Thursday into multiple intervals would still leave one capture group.
+
 ## Preparation rules
 
 1. Preserve the original labels and source filenames in a local manifest. Make any mapping into SentinelShield labels explicit and reviewable.

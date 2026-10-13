@@ -209,3 +209,26 @@ def aggregate_windows(
             )
         )
     return results
+
+
+def iter_aggregate_windows(
+    records: Iterable[PacketRecord], window_seconds: float = 5.0
+) -> Iterator[TrafficWindowFeatures]:
+    """Aggregate timestamp-ordered records while retaining only one window at a time."""
+    if window_seconds <= 0:
+        raise ValueError("window_seconds must be greater than zero")
+
+    current_start: float | None = None
+    current_packets: list[PacketRecord] = []
+    for record in records:
+        start = (record.timestamp // window_seconds) * window_seconds
+        if current_start is not None and start < current_start:
+            raise ValueError("Streaming aggregation requires timestamp-ordered packets")
+        if current_start is not None and start != current_start:
+            yield aggregate_windows(current_packets, window_seconds)[0]
+            current_packets = []
+        current_start = start
+        current_packets.append(record)
+
+    if current_packets:
+        yield aggregate_windows(current_packets, window_seconds)[0]
