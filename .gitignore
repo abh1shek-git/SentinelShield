@@ -36,4 +36,4 @@ logs/
 
 # Local presentation build and validation files
 presentation/.build/
-.codex-presentation-validation.json
+.codex-presentation-validation*.json
