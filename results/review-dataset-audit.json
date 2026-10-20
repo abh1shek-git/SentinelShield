@@ -1,0 +1,180 @@
+{
+  "kind": "review_dataset_suitability_audit",
+  "friday_flow_csv": {
+    "file": "Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv",
+    "bytes": 77123859,
+    "sha256": "6ff1580f5f81c0ae28a26f7631721018577f5f7c5e0feac28b795fcfe7b411ee",
+    "rows": 225745,
+    "raw_label_counts": {
+      "BENIGN": 97718,
+      "DDoS": 128027
+    },
+    "data_type": "labeled flow statistics; not raw packets"
+  },
+  "friday_matches_existing_evaluation": true,
+  "xena_pcaps": {
+    "directory": "all-xena-pcap",
+    "file_count": 25,
+    "total_bytes": 11350,
+    "total_packets": 98,
+    "total_ip_packets": 72,
+    "single_packet_files": 18,
+    "files": [
+      {
+        "file": "ARP_Spoofing.pcap",
+        "bytes": 424,
+        "packets": 5,
+        "ip_packets": 0
+      },
+      {
+        "file": "DNS_Flood.pcap",
+        "bytes": 111,
+        "packets": 1,
+        "ip_packets": 1
+      },
+      {
+        "file": "ETH_IPv4_TCP_syn.pcap",
+        "bytes": 106,
+        "packets": 1,
+        "ip_packets": 1
+      },
+      {
+        "file": "ETH_IPv4_UDP_dns.pcap",
+        "bytes": 127,
+        "packets": 1,
+        "ip_packets": 1
+      },
+      {
+        "file": "ICMP_Flood.pcap",
+        "bytes": 166,
+        "packets": 1,
+        "ip_packets": 1
+      },
+      {
+        "file": "IEEE1588_Precision Time Protocol-PTPv2-Sequence.pcap",
+        "bytes": 3960,
+        "packets": 39,
+        "ip_packets": 25
+      },
+      {
+        "file": "IEEE_802.1ag-CFM-CCM.pcap",
+        "bytes": 182,
+        "packets": 1,
+        "ip_packets": 0
+      },
+      {
+        "file": "IEEE_802.1X-EAPOL.pcap",
+        "bytes": 142,
+        "packets": 1,
+        "ip_packets": 0
+      },
+      {
+        "file": "IPv4-DHCP-Sequence.pcap",
+        "bytes": 1400,
+        "packets": 4,
+        "ip_packets": 4
+      },
+      {
+        "file": "IPv4_FRAGMENT_OVERLAP-Sequence.pcap",
+        "bytes": 948,
+        "packets": 10,
+        "ip_packets": 10
+      },
+      {
+        "file": "IPv4_Fragment_Overlap.pcap",
+        "bytes": 948,
+        "packets": 10,
+        "ip_packets": 10
+      },
+      {
+        "file": "Link_Aggregation-LACP.pcap",
+        "bytes": 164,
+        "packets": 1,
+        "ip_packets": 0
+      },
+      {
+        "file": "Link_Layer_Discovery_Protocol-LLDP.pcap",
+        "bytes": 104,
+        "packets": 1,
+        "ip_packets": 0
+      },
+      {
+        "file": "Ping_Flood.pcap",
+        "bytes": 166,
+        "packets": 1,
+        "ip_packets": 1
+      },
+      {
+        "file": "Ping_Of_Death.pcap",
+        "bytes": 170,
+        "packets": 1,
+        "ip_packets": 1
+      },
+      {
+        "file": "Rapid_Spanning_Tree_Protocol-RSTP.pcap",
+        "bytes": 93,
+        "packets": 1,
+        "ip_packets": 0
+      },
+      {
+        "file": "Simple_Network_Management_Protocol-SNMPv3_Discover-Sequence.pcap",
+        "bytes": 311,
+        "packets": 2,
+        "ip_packets": 2
+      },
+      {
+        "file": "Smurf_Attack.pcap",
+        "bytes": 166,
+        "packets": 1,
+        "ip_packets": 1
+      },
+      {
+        "file": "Spanning_Tree_Protocol-STP.pcap",
+        "bytes": 100,
+        "packets": 1,
+        "ip_packets": 0
+      },
+      {
+        "file": "SYN_Flood.pcap",
+        "bytes": 106,
+        "packets": 1,
+        "ip_packets": 1
+      },
+      {
+        "file": "Synchronous_Ethernet-ESMC.pcap",
+        "bytes": 100,
+        "packets": 1,
+        "ip_packets": 0
+      },
+      {
+        "file": "TCP_Attack.pcap",
+        "bytes": 116,
+        "packets": 1,
+        "ip_packets": 1
+      },
+      {
+        "file": "Teardrop_Attack.pcap",
+        "bytes": 948,
+        "packets": 10,
+        "ip_packets": 10
+      },
+      {
+        "file": "UDP_Flood.pcap",
+        "bytes": 104,
+        "packets": 1,
+        "ip_packets": 1
+      },
+      {
+        "file": "Virtual_Extensible_LAN-VXLAN.pcap",
+        "bytes": 188,
+        "packets": 1,
+        "ip_packets": 1
+      }
+    ],
+    "provenance": "User-supplied folder; original source and label method unverified"
+  },
+  "decisions": {
+    "friday_flow_csv": "Relevant to the separate flow-model evaluation; it is already represented by the existing report. Its flow schema cannot directly train the dashboard's packet-window model.",
+    "xena_pcaps": "Useful for packet-parser examples only. These tiny traces are not sustained, independently labeled DDoS or benign captures and must not be used for model training or accuracy claims."
+  }
+}

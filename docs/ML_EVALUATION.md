@@ -61,6 +61,8 @@ The command keeps every window from each selected capture out of training, refus
 
 ## Cross-dataset flow baseline
 
+The later dataset check confirmed that the local Friday CSV is byte-for-byte the same file used for the baseline result below: its SHA-256, row count, and raw label counts all match. The newly supplied `all-xena-pcap/` folder contains 25 tiny packet examples (98 packets total, 18 one-packet files), so it does not add a DDoS benchmark. See the [review dataset audit](../results/review-dataset-audit.json) and [review brief](REVIEW_BRIEF.md).
+
 The supplied `cicddos2019_dataset.csv` has 431,371 rows. Its `Class` column is mapped to binary `Benign` and `DDoS`; the specific attack name remains in the data audit. The separate supplied `Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv` has 225,745 rows labeled `BENIGN` or `DDoS`. The command selects 21 numeric flow measurements with the same meaning in both files. It excludes source-specific fields such as protocol and destination port. Missing and non-finite feature rows are removed and counted. The original CIC-DDoS2019 file provenance has not been verified independently.
 
 Run from the repository root:

@@ -4,6 +4,8 @@ SentinelShield is a project exploring cautious detection of unusual network traf
 
 **New to the project?** Follow [Start here](START_HERE.md) for a short dashboard demonstration and a plain-English explanation of the results.
 
+**Preparing for a review?** Use the [review brief](docs/REVIEW_BRIEF.md) for a five-minute demonstration, dataset decisions, measured results, and questions you may be asked.
+
 ## Current status
 
 - `sniffer.py` captures up to 20 packets and prints basic IPv4 metadata, then exits.
@@ -22,6 +24,7 @@ SentinelShield is a project exploring cautious detection of unusual network traf
 - Five small CIC-DDoS2019 PCAP excerpts have been converted into the live detector's 21-feature windows. They are an extraction and label-audit sample, not a valid training benchmark.
 - A capture-aware packet-window evaluator now keeps complete captures separate and records [readiness](results/lucid-capture-readiness.json). The five excerpts cannot produce a valid holdout score because only one benign capture is available.
 - A bounded extractor has sampled a pre-attack interval from the local 8.3 GB CIC-IDS2017 Thursday capture without loading the full file. Its [audit](results/cicids2017-thursday-pre-attack-audit.json) marks the benign label provisional; this does not unblock independent DDoS evaluation.
+- The supplied Friday CIC-IDS2017 flow CSV matches the file already evaluated. The 25 Xena PCAP examples contain only 98 packets in total and are unsuitable for DDoS model training or performance claims; see the [review dataset audit](results/review-dataset-audit.json).
 
 The misspelled legacy filename `traffice_counter.py` is retained for now so existing work is preserved. It will be renamed only alongside an intentional migration step.
 

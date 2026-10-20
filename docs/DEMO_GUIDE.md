@@ -29,4 +29,6 @@ The dashboard starts in synthetic demonstration mode. It does not start live cap
 
 ## What this demonstration does not establish
 
-The synthetic stream is not a replay of an attack, and the synthetic ML holdout is not a benchmark. Do not report its perfect scores as expected real-world performance. A research evaluation needs independently labeled benign and controlled test captures, a documented labeling method, and a split that prevents related windows from leaking across train and test sets. The current trainer uses a stratified random row split, so it does not yet provide that group-aware evaluation.
+The synthetic stream is not a replay of an attack, and the synthetic ML holdout is not a benchmark. Do not report its perfect scores as expected real-world performance. A research evaluation needs independently labeled benign and controlled test captures, a documented labeling method, and a split that prevents related windows from leaking across train and test sets. The separate capture-aware evaluator enforces whole-capture holdout, but the current PCAP excerpts do not provide enough independently labeled benign captures for a valid score. The general-purpose trainer still uses a stratified random row split and is unsuitable for a capture-level performance claim.
+
+For a faculty or technical review, use the shorter [review brief](REVIEW_BRIEF.md), which includes the actual dataset decisions and measured ML limitations.
