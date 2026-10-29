@@ -37,3 +37,8 @@ logs/
 # Local presentation build and validation files
 presentation/.build/
 .codex-presentation-validation*.json
+presentation/~$*.pptx
+
+# Signed report originals and working files stay local.
+report/*
+!report/SentinelShield_Project_Report_Repository_Copy.docx

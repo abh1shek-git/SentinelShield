@@ -4,7 +4,7 @@ This is the shortest way to see the working prototype. You do not need to downlo
 
 ## 1. Open the dashboard
 
-In PowerShell, from `D:\Project\DDOS project`, run:
+In PowerShell, from the cloned repository folder, run:
 
 ```powershell
 .\.venv\Scripts\python.exe -m streamlit run sentinelshield/dashboard/app.py
